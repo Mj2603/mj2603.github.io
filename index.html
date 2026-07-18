@@ -11,6 +11,8 @@
   <meta name="twitter:card" content="summary" />
   <meta name="theme-color" content="#FAFAF8" />
   <meta name="msapplication-TileColor" content="#FF5C00" />
+  <link rel="canonical" href="https://mrityunjay.dev" />
+  <meta name="keywords" content="quantitative finance, derivatives pricing, algorithmic trading, market making, volatility modeling" />
   <title>Mrityunjay Balkrishnan — Quantitative Finance</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -22,7 +24,7 @@
       --bg:        #FAFAF8;
       --ink:       #111110;
       --muted:     #737373;
-      --accent:    #FF5C00;   /* amanraj.dev orange */
+      --accent:    #FF5C00;
       --accent-bg: #FFF4EE;
       --rule:      #E5E4E0;
       --lift:      #F3F2EE;
@@ -33,7 +35,7 @@
 
     /* ── RESET ──────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; scroll-padding-top: 80px; }
     body {
       background: var(--bg);
       color: var(--ink);
@@ -90,6 +92,45 @@
     }
     .nav-links a { transition: color 0.15s; }
     .nav-links a:hover { color: var(--ink); }
+
+    /* ── MUSIC TOGGLE ─────────────────────────────── */
+    .music-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8125rem;
+      color: var(--muted);
+      background: transparent;
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      padding: 0.375rem 0.75rem;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .music-toggle:hover { color: var(--ink); border-color: var(--ink); }
+    .music-toggle svg { width: 14px; height: 14px; flex-shrink: 0; }
+    .music-toggle.playing { color: var(--accent); border-color: var(--accent); }
+    .music-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 12px;
+    }
+    .music-bar {
+      width: 3px;
+      background: currentColor;
+      border-radius: 1px;
+      animation: none;
+    }
+    .music-toggle.playing .music-bar { animation: bounce 0.6s ease-in-out infinite alternate; }
+    .music-bar:nth-child(1) { height: 4px; }
+    .music-bar:nth-child(2) { height: 8px; animation-delay: 0.1s; }
+    .music-bar:nth-child(3) { height: 6px; animation-delay: 0.2s; }
+    .music-bar:nth-child(4) { height: 10px; animation-delay: 0.3s; }
+    @keyframes bounce {
+      0% { transform: scaleY(0.5); }
+      100% { transform: scaleY(1); }
+    }
 
     /* ── CONTAINER ──────────────────────────────────── */
     .wrap { max-width: 760px; margin: 0 auto; padding: 0 2rem; }
@@ -191,12 +232,21 @@
       text-decoration: none;
       border-radius: 6px;
       transition: background 0.15s;
+      position: relative;
     }
     .proj:first-child { border-top: 1px solid var(--rule); }
     .proj:hover { background: var(--lift); }
     .proj-n { font-family: var(--font-m); font-size: 0.6875rem; color: var(--muted); padding-top: 0.25rem; }
     .proj-row { display: flex; align-items: baseline; gap: 0.625rem; margin-bottom: 0.3rem; flex-wrap: wrap; }
     .proj-name { font-family: var(--font-d); font-weight: 600; font-size: 0.9375rem; }
+    .proj-name::after {
+      content: "↗";
+      font-size: 0.75em;
+      opacity: 0.4;
+      margin-left: 0.25rem;
+      transition: opacity 0.15s;
+    }
+    .proj:hover .proj-name::after { opacity: 0.8; }
     .proj-cat {
       font-family: var(--font-m);
       font-size: 0.625rem;
@@ -295,6 +345,7 @@
       .travel-grid { grid-template-columns: 1fr; }
       .proj-list { margin: 0 -0.5rem; }
       .proj { padding-left: 0.5rem; padding-right: 0.5rem; }
+      .music-toggle .music-label { display: none; }
     }
   </style>
 </head>
@@ -310,6 +361,15 @@
   <div class="nav-links">
     <a href="#projects" class="hide-sm">Projects</a>
     <a href="#travel" class="hide-sm">Travel</a>
+    <button class="music-toggle" id="musicToggle" aria-label="Toggle background music">
+      <div class="music-bars">
+        <div class="music-bar"></div>
+        <div class="music-bar"></div>
+        <div class="music-bar"></div>
+        <div class="music-bar"></div>
+      </div>
+      <span class="music-label">Play</span>
+    </button>
     <a href="https://github.com/Mj2603" target="_blank" rel="noopener noreferrer">GitHub</a>
     <a href="https://www.linkedin.com/in/mj2603/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
   </div>
@@ -340,11 +400,11 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
         Email
       </a>
-      <!-- Add resume.pdf to your repo root to activate this link -->
-      <a href="./resume.pdf" target="_blank" rel="noopener noreferrer" class="h-link">
+      <!-- Resume link — uncomment when resume.pdf is ready -->
+      <!-- <a href="./resume.pdf" target="_blank" rel="noopener noreferrer" class="h-link">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
         Resume
-      </a>
+      </a> -->
     </div>
   </div>
 
@@ -574,25 +634,53 @@
 
 </div>
 </main>
-<audio id="bgMusic" autoplay loop>
-    <source src="dracula.mp3" type="audio/mpeg">
-    Your browser does not support the audio element.
+
+<!-- ════ AUDIO ══════════════════════════════════════ -->
+<audio id="bgMusic" loop preload="auto">
+  <source src="dracula.mp3" type="audio/mpeg" />
+  Your browser does not support the audio element.
 </audio>
 
 <script>
-const music = document.getElementById("bgMusic");
+  const musicToggle = document.getElementById('musicToggle');
+  const musicLabel = musicToggle.querySelector('.music-label');
+  const bgMusic = document.getElementById('bgMusic');
 
-music.volume = 0.45;
+  // Set initial volume (0.0 to 1.0)
+  bgMusic.volume = 0.35;
 
-window.addEventListener("load", () => {
-    const playPromise = music.play();
+  let isPlaying = false;
 
-    if (playPromise !== undefined) {
-        playPromise.catch(() => {
-            console.log("Autoplay blocked by browser.");
-        });
+  musicToggle.addEventListener('click', async () => {
+    if (isPlaying) {
+      bgMusic.pause();
+      musicToggle.classList.remove('playing');
+      musicLabel.textContent = 'Play';
+    } else {
+      try {
+        await bgMusic.play();
+        musicToggle.classList.add('playing');
+        musicLabel.textContent = 'Pause';
+      } catch (err) {
+        console.log('Playback failed:', err);
+      }
     }
-});
+    isPlaying = !isPlaying;
+  });
+
+  // Update button state if music ends (loop means this rarely fires, but just in case)
+  bgMusic.addEventListener('pause', () => {
+    musicToggle.classList.remove('playing');
+    musicLabel.textContent = 'Play';
+    isPlaying = false;
+  });
+
+  bgMusic.addEventListener('play', () => {
+    musicToggle.classList.add('playing');
+    musicLabel.textContent = 'Pause';
+    isPlaying = true;
+  });
 </script>
+
 </body>
 </html>
