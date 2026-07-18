@@ -300,18 +300,7 @@
 </head>
 
 <body>
-<div id="intro-screen">
-    <h1>MJ</h1>
-    <p>Enter</p>
 
-    <button id="enter-btn">
-        ENTER
-    </button>
-
-    <audio id="intro-music">
-        <source src="dracula.mp3" type="audio/mpeg">
-    </audio>
-</div>
 <!-- ════ NAV ════════════════════════════════════════ -->
 <nav>
   <a href="/" class="nav-logo">
@@ -585,27 +574,24 @@
 
 </div>
 </main>
+<audio id="bgMusic" autoplay loop>
+    <source src="dracula.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+</audio>
+
 <script>
-const button = document.getElementById("enter-btn");
-const intro = document.getElementById("intro-screen");
-const music = document.getElementById("intro-music");
+const music = document.getElementById("bgMusic");
 
-button.addEventListener("click", async () => {
+music.volume = 0.45;
 
-    music.volume = 0.45;
+window.addEventListener("load", () => {
+    const playPromise = music.play();
 
-    try{
-        await music.play();
-    }catch(e){
-        console.log(e);
+    if (playPromise !== undefined) {
+        playPromise.catch(() => {
+            console.log("Autoplay blocked by browser.");
+        });
     }
-
-    intro.classList.add("hidden");
-
-    setTimeout(()=>{
-        intro.remove();
-    },800);
-
 });
 </script>
 </body>
