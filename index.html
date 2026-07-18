@@ -16,7 +16,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-
   <style>
     /* ── TOKENS ─────────────────────────────────────── */
     :root {
@@ -297,11 +296,68 @@
       .proj-list { margin: 0 -0.5rem; }
       .proj { padding-left: 0.5rem; padding-right: 0.5rem; }
     }
+  /* ===== INTRO OVERLAY ===== */
+
+#intro-screen{
+    position:fixed;
+    inset:0;
+    background:#0a0a0a;
+    color:#fff;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    z-index:99999;
+    transition:opacity .8s ease;
+}
+
+#intro-screen.hidden{
+    opacity:0;
+    pointer-events:none;
+}
+
+#intro-screen h1{
+    font-family:var(--font-d);
+    font-size:4rem;
+    letter-spacing:.08em;
+    margin-bottom:18px;
+}
+
+#intro-screen p{
+    color:#999;
+    margin-bottom:35px;
+}
+
+#enter-btn{
+    padding:14px 34px;
+    border:1px solid white;
+    background:transparent;
+    color:white;
+    cursor:pointer;
+    font-size:15px;
+    transition:.3s;
+}
+
+#enter-btn:hover{
+    background:white;
+    color:black;
+}
   </style>
 </head>
 
 <body>
+<div id="intro-screen">
+    <h1>MJ</h1>
+    <p>Enter</p>
 
+    <button id="enter-btn">
+        ENTER
+    </button>
+
+    <audio id="intro-music">
+        <source src="dracula.mp3" type="audio/mpeg">
+    </audio>
+</div>
 <!-- ════ NAV ════════════════════════════════════════ -->
 <nav>
   <a href="/" class="nav-logo">
@@ -575,6 +631,28 @@
 
 </div>
 </main>
+<script>
+const button = document.getElementById("enter-btn");
+const intro = document.getElementById("intro-screen");
+const music = document.getElementById("intro-music");
 
+button.addEventListener("click", async () => {
+
+    music.volume = 0.45;
+
+    try{
+        await music.play();
+    }catch(e){
+        console.log(e);
+    }
+
+    intro.classList.add("hidden");
+
+    setTimeout(()=>{
+        intro.remove();
+    },800);
+
+});
+</script>
 </body>
 </html>
