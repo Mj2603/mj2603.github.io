@@ -27,6 +27,7 @@ const vol = (k, t) => sabr(100, k, t, 0.25 * (1 + 0.1 * (Math.sqrt(t) - 1)) * 10
 function hero() {
   const ks = Array.from({ length: 26 }, (_, i) => 70 + 2.4 * i), ts = Array.from({ length: 20 }, (_, i) => 0.1 + 1.9 * i / 19);
   let hj = 0; ts.forEach((t, j) => { if (Math.abs(t - 1) < Math.abs(ts[hj] - 1)) hj = j; });
+  if (!document.getElementById('hero-surf')) return;
   Q.surface(document.getElementById('hero-surf'), { xs: ks, ys: ts, z: (i, j) => vol(ks[i], ts[j]) }, { stone: true, bare: true, highlight: hj });
 }
 document.addEventListener('DOMContentLoaded', () => {
@@ -41,6 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
   hero(); Q.onRedraw(hero);
   // ---- Lorenz attractor, rotating line figure
   const lz = (() => { const pts = []; let x = 0.1, y = 0, z = 0; const dt = 0.006; for (let i = 0; i < 9000; i++) { const dx = 10 * (y - x), dy = x * (28 - z) - y, dz = x * y - 8 / 3 * z; x += dx * dt; y += dy * dt; z += dz * dt; if (i > 300) pts.push([x, y, z - 25]); } return pts; })();
+  if (document.getElementById('lorenz')) {
   const cv = document.getElementById('lorenz'); let ang = 0.6;
   const drawL = () => { const dpr = Math.min(2, devicePixelRatio || 1), w = cv.clientWidth, h = cv.clientHeight; if (!w) return;
     cv.width = w * dpr; cv.height = h * dpr; const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, w, h);
@@ -60,5 +62,6 @@ document.addEventListener('DOMContentLoaded', () => {
   btn.addEventListener('click', () => { au.volume = 0.6; au.paused ? au.play().catch(() => {}) : au.pause(); });
   au.addEventListener('play', sync); au.addEventListener('pause', sync);
   au.addEventListener('timeupdate', () => { if (au.duration) prog.style.width = (au.currentTime / au.duration * 100).toFixed(1) + '%'; });
+  }
 });
 })();
