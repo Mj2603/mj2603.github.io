@@ -26,7 +26,13 @@ window.PROJECTS = [
   {
     id: 'mm', name: 'Options Market-Making Simulator', repo: 'Options-Market-Making-Simulator-', stack: 'Python · NumPy · pytest',
     blurb: 'Event-driven market-making research: Black–Scholes quoting, fill logic, inventory controls and commission-aware P&L accounting, plus a comparison of inventory-aware quoting against a fixed spread.',
-    claims: [], repro: '', demo: 'mm',
+    claims: [
+      ['ok', 'Event-driven trade-print replay: each print fills against the quote left resting by the previous event, with participation caps, inventory limits and commission-aware average-cost P&L. 113 tests pass.'],
+      ['ok', 'Avellaneda–Stoikov quoting with k fitted by Poisson maximum likelihood on the training window, compared with a fixed spread in expanding-window walk-forward folds.'],
+      ['part', 'Synthetic walk-forward, 20 seeds: A–S cut peak inventory 2–5×. Net P&L was +1–4% on average, but it lost on 8 of 20 seeds, so I report the inventory-risk result and not a P&L edge. A real-data run (Alpaca options prints) is next.'],
+    ],
+    repro: 'pip install -r requirements.txt && pytest\npython scripts/run_synthetic_backtest.py',
+    demo: 'mm',
   },
   {
     id: 'sa', name: 'Statistical Arbitrage Research', repo: 'Statistical-Arbitrage-Research-', stack: 'Python · statsmodels · pytest',
