@@ -39,28 +39,6 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="ft"><span>${p.stack}</span><span class="ics"><a href="https://github.com/Mj2603/${p.repo}" target="_blank" rel="noopener" aria-label="${p.title} source on GitHub">${GH}</a>${p.page ? `<a href="${p.page}" aria-label="Open ${p.title}">${OUT}</a>` : ''}</span></div>
     </div></article>`; }).join('');
   hero(); Q.onRedraw(hero);
-  // ---- travel postcards: real photos in assets/travel/<id>-1.jpg / -2.jpg replace the drawn scenes when present
-  const scene = (kind, sky, far, near, sun) => {
-    const sk = `<defs><linearGradient id="g${kind}${sky}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${sky[0]}"/><stop offset="1" stop-color="${sky[1]}"/></linearGradient></defs><rect width="300" height="200" fill="url(#g${kind}${sky})"/>`;
-    const sn = sun ? `<circle cx="${sun[0]}" cy="${sun[1]}" r="18" fill="${sun[2]}" opacity=".9"/>` : '';
-    const art = {
-      peaks: `<path d="M0 150 60 70 95 110 140 40 190 105 230 65 300 140V200H0z" fill="${far}"/><path d="M140 40l-14 22 8-4 6 8 6-9 8 4z" fill="#fffaf2" opacity=".9"/><path d="M0 175 50 135 110 165 170 125 240 160 300 135V200H0z" fill="${near}"/>`,
-      city: `<g fill="${far}"><rect x="20" y="95" width="26" height="105"/><rect x="52" y="70" width="20" height="130"/><rect x="78" y="110" width="30" height="90"/><rect x="114" y="45" width="18" height="155"/><path d="M118 45h10l-5-20z"/><rect x="138" y="85" width="34" height="115"/><rect x="178" y="60" width="22" height="140"/><rect x="206" y="100" width="30" height="100"/><rect x="242" y="78" width="22" height="122"/><rect x="270" y="105" width="30" height="95"/></g><rect y="178" width="300" height="22" fill="${near}"/>`,
-      bridge: `<path d="M0 160h300v40H0z" fill="${near}"/><path d="M0 120 300 120" stroke="${far}" stroke-width="4"/><path d="M70 160V60M230 160V60" stroke="${far}" stroke-width="7"/><path d="M0 115Q70 60 150 115T300 115" fill="none" stroke="${far}" stroke-width="2.5"/><path d="M0 140 300 140" stroke="${far}" stroke-width="5"/>`,
-      temple: `<path d="M0 160 70 95 120 135 175 80 240 130 300 100V200H0z" fill="${far}" opacity=".55"/><g fill="${near}"><path d="M120 185V140h60v45z"/><path d="M110 142h80l-12-14h-56z"/><path d="M128 128h44l-10-12h-24z"/><path d="M140 116h20l-10-14z"/></g><rect y="185" width="300" height="15" fill="${near}"/>`,
-    }[kind];
-    return `<svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${sk}${sn}${art}</svg>`; };
-  const TRIPS = [
-    { id: 'india', name: 'India', text: 'Home. Kolkata, Mumbai, Gurgaon, Hyderabad, and plenty of places in between.', a: scene('peaks', ['#9cc3d6', '#f3e4cc'], '#7a8f86', '#566b5f', null), b: scene('temple', ['#f2b27a', '#f6e2c4'], '#a1593a', '#5a3524', [230, 60, '#fff1d6']) },
-    { id: 'united-states', name: 'United States', text: 'Now based in Berkeley, California.', a: scene('city', ['#8fb4d8', '#f1e6d3'], '#4f5d6e', '#3b4450', null), b: scene('bridge', ['#f0a874', '#f8e4c8'], '#b3422a', '#7a6a5e', [70, 70, '#ffe7c2']) },
-    { id: 'bhutan', name: 'Bhutan', text: 'Himalayan valleys.', a: scene('temple', ['#b7d0de', '#efe4d2'], '#7f9488', '#6b4a36', null), b: scene('peaks', ['#a9c6d9', '#f2e8d8'], '#8597a0', '#5e6f63', [240, 50, '#fff6e0']) },
-    { id: 'nepal', name: 'Nepal', text: 'The Himalaya, up close.', a: scene('peaks', ['#c9b4d6', '#f6e3cf'], '#7c6f8a', '#4f4a5c', [80, 55, '#fff0d8']), b: scene('peaks', ['#9fbfd8', '#eef0ea'], '#6e8699', '#46596a', null) },
-  ];
-  document.getElementById('trips').innerHTML = TRIPS.map(t => `<article class="trip"><div class="stack">
-      <div class="ph back">${t.b}<img src="assets/travel/${t.id}-2.jpg" alt="" loading="lazy" onerror="this.remove()"></div>
-      <div class="ph front">${t.a}<img src="assets/travel/${t.id}-1.jpg" alt="${t.name}" loading="lazy" onerror="this.remove()"></div></div>
-    <h3>${t.name}</h3><p>${t.text}</p></article>`).join('');
-
   // ---- Lorenz attractor, rotating line figure
   const lz = (() => { const pts = []; let x = 0.1, y = 0, z = 0; const dt = 0.006; for (let i = 0; i < 9000; i++) { const dx = 10 * (y - x), dy = x * (28 - z) - y, dz = x * y - 8 / 3 * z; x += dx * dt; y += dy * dt; z += dz * dt; if (i > 300) pts.push([x, y, z - 25]); } return pts; })();
   const cv = document.getElementById('lorenz'); let ang = 0.6;
