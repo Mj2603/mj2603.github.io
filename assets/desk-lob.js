@@ -74,7 +74,7 @@ function render() {
     Q.plot($('#midc'), [{ x: hist.t, y: hist.mid, color: P_.ink, width: 1.4, label: 'Mid' }, { x: hist.t, y: hist.micro, color: P_.a, width: 1.6, label: 'Micro-price' }], { xfmt: v => fmt(v, 0), yfmt: v => v.toFixed(3) });
     Q.plot($('#imbc'), [{ x: hist.t, y: hist.imb, color: P_.d, width: 1.4, label: 'L1 imbalance' }], { hlines: [0], xfmt: v => fmt(v, 0), yfmt: v => v.toFixed(1), yMin: -1, yMax: 1 });
   }
-  $('#mine').innerHTML = mine.length ? mine.map(id => { const o = book.idx.get(id); return o ? `<li><span class="${o.side === 'B' ? 'up' : 'dn'}">${o.side === 'B' ? 'BID' : 'ASK'}</span><span>#${id} · ${o.qty} @ ${T(o.px)} · queue pos ${book.lv[o.side].get(o.px).indexOf(o) + 1}</span><button class="btn ghost" data-cx="${id}" type="button" style="padding:2px 8px">Cancel</button></li>` : ''; }).join('') : '<li class="muted"><span></span><span>No resting orders. Post a limit order to see your queue position.</span><span></span></li>';
+  $('#mine').innerHTML = mine.length ? mine.map(id => { const o = book.idx.get(id); return o ? `<li><span class="${o.side === 'B' ? 'up' : 'dn'}">${o.side === 'B' ? 'BID' : 'ASK'}</span><span>#${id} · ${o.qty} @ ${T(o.px)} · queue pos ${book.lv[o.side].get(o.px).indexOf(o) + 1}</span><button class="btn ghost" data-cx="${id}" type="button" style="padding:2px 8px">Cancel</button></li>` : ''; }).join('') : '<li class="muted"><span></span><span>No resting orders. Send a limit order from the panel.</span><span></span></li>';
 }
 function bench() {
   const b = $('#l-bench'); Q.busy(b, true);
@@ -88,13 +88,13 @@ function bench() {
 document.addEventListener('DOMContentLoaded', () => {
   reset(); snap(); render();
   Q.bind(['l-cancel', 'l-mkt', 'l-width', 'l-imb', 'l-speed'], () => {});
-  $('#l-play').addEventListener('click', e => {
-    if (timer) { clearInterval(timer); timer = null; e.currentTarget.textContent = 'Stream flow'; return; }
-    e.currentTarget.textContent = 'Pause';
-    timer = setInterval(() => { const k = parseInt($('#l-speed').value, 10); for (let i = 0; i < k; i++) { flowStep(); if (i % Math.max(1, Math.floor(k / 4)) === 0) snap(); } render(); }, 100);
-  });
+  const play = () => { $('#l-play').textContent = 'Pause'; $('#l-state').className = 'live'; $('#l-state').textContent = 'LIVE FLOW';
+    timer = setInterval(() => { if (document.hidden) return; const k = parseInt($('#l-speed').value, 10); for (let i = 0; i < k; i++) { flowStep(); if (i % Math.max(1, Math.floor(k / 4)) === 0) snap(); } render(); }, 100); };
+  const stop = () => { clearInterval(timer); timer = null; $('#l-play').textContent = 'Resume'; $('#l-state').className = 'live off'; $('#l-state').textContent = 'PAUSED'; };
+  $('#l-play').addEventListener('click', () => timer ? stop() : play());
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) play(); else stop();
   $('#l-step').addEventListener('click', () => { flowStep(); snap(); render(); });
-  $('#l-reset').addEventListener('click', () => { if (timer) { clearInterval(timer); timer = null; $('#l-play').textContent = 'Stream flow'; } reset(); snap(); render(); });
+  $('#l-reset').addEventListener('click', () => { reset(); snap(); render(); });
   $('#l-bench').addEventListener('click', bench);
   $('#order').addEventListener('submit', e => { e.preventDefault();
     const side = $('#o-side').value, type = $('#o-type').value, px = Math.round(parseFloat($('#o-px').value) / tick), qty = parseInt($('#o-qty').value, 10);

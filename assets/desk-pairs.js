@@ -52,14 +52,32 @@ function runBacktest() {
   $('#k-cagr').textContent = pct(r.cagr, 1); $('#k-mdd').textContent = pct(r.mdd, 1);
   $('#k-pass').textContent = pct(r.passRate, 0); $('#k-pass-s').textContent = `${r.wins.filter(w => w.pass).length} of ${r.wins.length} quarterly windows passed EG at 5%`;
   $('#k-to').textContent = fmt(r.turnover, 1) + '×'; $('#k-to-s').textContent = `${r.trades} entries · in market ${pct(r.exposure, 0)} of days`;
-  const idx = d.x.map((_, i) => i), yr = v => (v / 252).toFixed(1) + 'y';
-  Q.plot($('#p-px'), [{ x: idx, y: d.x.map(v => v / d.x[0] * 100), color: P_.c, width: 1.3, label: 'X (rebased)' }, { x: idx, y: d.y.map(v => v / d.y[0] * 100), color: P_.a, width: 1.3, label: 'Y (rebased)' }], { xfmt: yr, vlines: [TRAIN] });
-  Q.plot($('#p-z'), [{ x: r.ts, y: r.zs, color: P_.a, width: 1, label: 'z', marks: r.marks.map(m => ({ ...m, color: m.shape === 'up' ? P_.up : m.shape === 'dn' ? P_.dn : P_.muted })) }],
-    { hlines: [p.entry, -p.entry, { y: 0, color: P_.axis }], xfmt: yr, yfmt: v => v.toFixed(1), vlines: r.wins.map(w => w.start) });
-  const ex = r.eq.map((_, i) => TRAIN + i);
-  Q.plot($('#p-eq'), [{ x: ex, y: r.eg, color: P_.muted, width: 1.2, dash: [4, 4], label: 'Gross' }, { x: ex, y: r.eq, color: P_.a, width: 2, label: 'Net of costs' }], { hlines: [1], xfmt: yr, yfmt: v => v.toFixed(2) });
-  Q.plot($('#p-dd'), [{ x: ex, y: r.dd.map(v => v * 100), color: P_.dn, width: 1.4, fill: true, label: 'Drawdown' }], { xfmt: yr, yfmt: v => v.toFixed(1) + '%', yMax: 0 });
-  return r;
+  A.d = d; A.r = r; A.p = p; A.k = r.ts.length; drawBT(); return r;
+}
+/* progressive replay: the walk-forward is revealed day by day, with a log entry at every refit */
+const A = { d: null, r: null, p: null, k: 0, timer: null };
+function drawBT() {
+  const { d, r, p } = A, P_ = Q.palette(), k = Math.max(1, Math.min(A.k, r.ts.length)), yr = v => (v / 252).toFixed(1) + 'y';
+  const last = r.ts[k - 1], idx = d.x.map((_, i) => i).slice(0, last + 2);
+  const xr = [0, d.x.length - 1];
+  Q.plot($('#p-px'), [{ x: idx, y: idx.map(i => d.x[i] / d.x[0] * 100), color: P_.c, width: 1.3, label: 'X (rebased)' }, { x: idx, y: idx.map(i => d.y[i] / d.y[0] * 100), color: P_.a, width: 1.3, label: 'Y (rebased)' }],
+    { xfmt: yr, vlines: [TRAIN], xMin: xr[0], xMax: xr[1], yMin: Math.min(...d.x.map(v => v / d.x[0] * 100), ...d.y.map(v => v / d.y[0] * 100)), yMax: Math.max(...d.x.map(v => v / d.x[0] * 100), ...d.y.map(v => v / d.y[0] * 100)) });
+  Q.plot($('#p-z'), [{ x: r.ts.slice(0, k), y: r.zs.slice(0, k), color: P_.a, width: 1, label: 'z', marks: r.marks.filter(m => m.x <= last).map(m => ({ ...m, color: m.shape === 'up' ? P_.up : m.shape === 'dn' ? P_.dn : P_.muted })) }],
+    { hlines: [p.entry, -p.entry, { y: 0, color: P_.axis }], xfmt: yr, yfmt: v => v.toFixed(1), vlines: r.wins.filter(w => w.start <= last).map(w => w.start), xMin: TRAIN, xMax: xr[1], yMin: Math.min(-4, ...r.zs), yMax: Math.max(4, ...r.zs) });
+  const ex = r.eq.map((_, i) => TRAIN + i), n = k + 1;
+  Q.plot($('#p-eq'), [{ x: ex.slice(0, n), y: r.eg.slice(0, n), color: P_.muted, width: 1.2, dash: [4, 4], label: 'Gross' }, { x: ex.slice(0, n), y: r.eq.slice(0, n), color: P_.a, width: 2, label: 'Net of costs' }],
+    { hlines: [1], xfmt: yr, yfmt: v => v.toFixed(2), xMin: TRAIN, xMax: xr[1], yMin: Math.min(...r.eq, ...r.eg, 1), yMax: Math.max(...r.eq, ...r.eg, 1) });
+  Q.plot($('#p-dd'), [{ x: ex.slice(0, n), y: r.dd.slice(0, n).map(v => v * 100), color: P_.dn, width: 1.4, fill: true, label: 'Drawdown' }], { xfmt: yr, yfmt: v => v.toFixed(1) + '%', yMax: 0, xMin: TRAIN, xMax: xr[1], yMin: Math.min(...r.dd) * 100 * 1.05 - 0.01 });
+  const log = $('#bt-log'), shown = log.children.length, wins = r.wins.filter(w => w.start <= last);
+  for (let i = shown; i < wins.length; i++) { const w = wins[i], li = document.createElement('li');
+    li.innerHTML = `<b>Window ${i + 1}</b> · ${yr(w.start)} · β ${fmt(w.beta, 3)} · ADF ${fmt(w.t, 2)} → ${w.pass ? '<span class="pos">trade</span>' : '<span class="neg">stand aside</span>'}`; log.prepend(li); }
+  const st = $('#bt-state'); const done = k >= r.ts.length; st.className = 'live' + (done ? ' off' : ''); st.textContent = done ? 'COMPLETE' : 'REPLAYING ' + yr(last);
+}
+function replayBT() {
+  clearInterval(A.timer); $('#bt-log').innerHTML = '';
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { A.k = A.r.ts.length; drawBT(); return; }
+  A.k = 1; const stepN = Math.max(3, Math.ceil(A.r.ts.length / 220));
+  A.timer = setInterval(() => { if (document.hidden) return; A.k += stepN; drawBT(); if (A.k >= A.r.ts.length) { clearInterval(A.timer); A.k = A.r.ts.length; drawBT(); } }, 40);
 }
 function strip(p, r) { $('#st-kind').textContent = { coint: 'COINTEGRATED', break: 'REGIME BREAK', rw: 'RANDOM-WALK CONTROL' }[p.kind]; $('#st-kind').className = 'pill ' + (p.kind === 'coint' ? 'long' : p.kind === 'rw' ? 'short' : '');
   $('#st-k').textContent = p.kappa; $('#st-b').textContent = p.beta; $('#st-c').textContent = p.cost + ' bps'; $('#st-e').textContent = '±' + p.entry; $('#st-y').textContent = fmt(r.years, 1) + 'y OOS'; }
@@ -82,12 +100,13 @@ function runSweep() {
   $('#s-sr0').textContent = fmt(Q.mean(res[0][0].map(r => r.sr)), 2); $('#s-fp').textContent = pct(Q.mean(res[2][0].map(r => r.passRate)), 0);
   const r0 = backtest(simulate(p), p.cost, p.entry); strip(p, r0);
 }
-let mode = 'backtest';
-const run = () => { const b = $('#p-run'); Q.busy(b, true); setTimeout(() => { ({ backtest: runBacktest, windows: runWindows, sweep: runSweep })[mode](); Q.busy(b, false); }, 15); };
+let mode = 'backtest', first = true;
+const run = () => { const b = $('#p-run'); Q.busy(b, true); setTimeout(() => { ({ backtest: runBacktest, windows: runWindows, sweep: runSweep })[mode](); if (mode === 'backtest') { if (first) { first = false; replayBT(); } else { clearInterval(A.timer); $('#bt-log').innerHTML = ''; drawBT(); } } Q.busy(b, false); }, 15); };
 document.addEventListener('DOMContentLoaded', () => {
   Q.bind(['p-kappa', 'p-beta', 'p-svol', 'p-cost', 'p-entry', 'p-kind', 'p-years', 's-n'], Q.debounce(() => { if (mode !== 'sweep') run(); }, 60));
   $('#p-run').addEventListener('click', run);
+  $('#bt-replay').addEventListener('click', () => { if (A.r) replayBT(); });
   Q.modes('mode', m => { mode = m; run(); });
-  Q.onRedraw(() => ({ backtest: runBacktest, windows: runWindows, sweep: runSweep })[mode]());
+  Q.onRedraw(() => { if (mode === 'backtest') { if (A.r) drawBT(); } else ({ windows: runWindows, sweep: runSweep })[mode](); });
 });
 })();

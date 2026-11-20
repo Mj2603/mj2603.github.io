@@ -3,34 +3,32 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Market-Making Desk · Mrityunjay Balkrishnan</title>
-<meta name="description" content="Avellaneda–Stoikov vs. fixed-spread market making: Monte Carlo with common random numbers, risk–return frontier, path replay and policy heatmap.">
+<title>Market Making · Mrityunjay Balkrishnan</title>
+<meta name="description" content="Inventory-aware market making: Avellaneda–Stoikov quoting against tuned fixed-spread rules, with a live session, paired Monte Carlo and policy analysis.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/desk.css">
 <script>try{const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
 </head>
-<body>
+<body data-desk="mm">
 <header class="top">
-  <button class="iconbtn" id="collapse" aria-expanded="true" aria-label="Toggle controls panel" title="Toggle controls">☰</button>
+  <button class="iconbtn" id="collapse" aria-expanded="true" aria-label="Toggle parameter panel" title="Parameters">☰</button>
   <a class="brand" href="index.html">Mrityunjay Balkrishnan<span>Berkeley MFE</span></a>
-  <nav class="desks" aria-label="Desks">
-    <a href="index.html">Overview</a><a href="vol.html">Volatility</a><a href="mm.html" aria-current="page">Market making</a><a href="lob.html">Order book</a><a href="pairs.html">Pairs</a>
-  </nav>
+  <nav class="desks" aria-label="Projects"><a href="index.html">Home</a><a href="vol.html">Volatility</a><a href="mm.html" aria-current="page">Market making</a><a href="lob.html">Order book</a><a href="pairs.html">Pairs</a><a href="about.html">About</a></nav>
   <button class="iconbtn" id="theme" aria-label="Toggle dark mode" title="Theme">◐</button>
 </header>
 <div class="app">
-<aside class="side" aria-label="Controls">
-  <div class="who"><b>Market-making desk</b>A browser port of the quoting model in <a href="https://github.com/Mj2603/Options-Market-Making-Simulator-" target="_blank" rel="noopener">Options-Market-Making-Simulator-</a>. Every strategy sees the same price paths and fill draws, so differences are paired.</div>
+<aside class="side" aria-label="Parameters">
+  <div class="who"><b>Parameters</b>All strategies run on the same simulated price paths and fill draws, so every comparison is paired.</div>
   <h4>Market</h4>
   <label class="field"><span class="lbl">Volatility σ ($ per √session) <output data-out="m-sig"></output></span><input type="range" id="m-sig" min="0.5" max="5" step="0.1" value="2"></label>
   <label class="field"><span class="lbl">Order arrival A (per session) <output data-out="m-A"></output></span><input type="range" id="m-A" min="40" max="300" step="10" value="140"></label>
   <label class="field"><span class="lbl">Fill decay k (per $) <output data-out="m-k"></output></span><input type="range" id="m-k" min="0.3" max="5" step="0.1" value="1.5"></label>
-  <p class="help">A fill at distance δ from mid arrives with intensity A·e<sup>−kδ</sup>.</p>
-  <h4>Desk</h4>
+  <p class="help">Fill intensity at distance δ from mid: A·e<sup>−kδ</sup>.</p>
+  <h4>Quoting</h4>
   <label class="field"><span class="lbl">Risk aversion γ <output data-out="m-gamma"></output></span><input type="range" id="m-gamma" min="0.01" max="0.8" step="0.01" value="0.1"></label>
   <label class="field"><span class="lbl">Fee per fill ($) <output data-out="m-fee"></output></span><input type="range" id="m-fee" min="0" max="0.1" step="0.005" value="0.01"></label>
-  <label class="field"><span class="lbl">Objective κ, mean − ½κ·var <output data-out="m-kappa"></output></span><input type="range" id="m-kappa" min="0" max="0.1" step="0.005" value="0.02"></label>
+  <label class="field"><span class="lbl">Objective κ: mean − ½κ·variance <output data-out="m-kappa"></output></span><input type="range" id="m-kappa" min="0" max="0.1" step="0.005" value="0.02"></label>
   <div class="row2">
     <label class="field"><span class="lbl">Inventory limit</span><select id="m-qmax"><option>10</option><option>25</option><option selected>50</option></select></label>
     <label class="field"><span class="lbl">Steps</span><select id="m-steps"><option>100</option><option selected>200</option><option>400</option></select></label>
@@ -39,34 +37,63 @@
     <label class="field"><span class="lbl">Paths</span><select id="m-n"><option>500</option><option selected>1000</option><option>2000</option></select></label>
     <label class="field"><span class="lbl">Seed</span><input type="number" id="m-seed" value="11" min="1"></label>
   </div>
-  <button class="btn wide" id="m-run" type="button">Run</button>
+  <button class="btn wide" id="m-run" type="button">Apply</button>
 </aside>
 <main class="main" id="main">
   <div class="dhead">
-    <div class="dtitle"><h1>Market-making desk</h1><p>Inventory-aware quoting against tuned fixed-spread rules</p></div>
+    <div class="dtitle"><span class="proj-no">Project 02</span><h1>Market making</h1><p>Inventory-aware quoting compared with tuned fixed-spread rules</p></div>
     <div class="modes" role="radiogroup" aria-label="View">
-      <label><input type="radio" name="mode" value="montecarlo" checked><span>Monte Carlo</span></label>
+      <label><input type="radio" name="mode" value="live" checked><span>Live session</span></label>
+      <label><input type="radio" name="mode" value="montecarlo"><span>Monte Carlo</span></label>
       <label><input type="radio" name="mode" value="replay"><span>Path replay</span></label>
       <label><input type="radio" name="mode" value="model"><span>Model</span></label>
     </div>
   </div>
-  <div class="strip"><span class="pill">AVELLANEDA–STOIKOV</span><span>γ<b id="st-g"></b></span><span>σ<b id="st-sig"></b></span><span>k<b id="st-k"></b></span><span>A<b id="st-A"></b></span><span>Fee<b id="st-fee"></b></span><span>Paths<b id="st-n"></b></span><span>Compute<b id="st-ms"></b></span></div>
 
-  <section data-mode="montecarlo">
+  <div class="brief">
+    <div><h4>Objective</h4><p>Quote two-sided markets that earn the spread without building up directional inventory, and measure what inventory-aware quoting adds over a well-tuned fixed spread.</p></div>
+    <div><h4>Method</h4><p>Avellaneda–Stoikov reservation price and spread, with Poisson fills of intensity A·e<sup>−kδ</sup>. The repository replays trade prints event by event, calibrates k by maximum likelihood, and walks forward across folds.</p></div>
+    <div><h4>Result</h4><p>Net P&amp;L matches the best fixed rule within one standard error. P&amp;L dispersion is 26–35% lower and peak inventory 22–24% lower over 20 seeds (random-walk and informed flow).</p></div>
+    <div><h4>Code</h4><p><a href="https://github.com/Mj2603/Options-Market-Making-Simulator-" target="_blank" rel="noopener">Options-Market-Making-Simulator-</a>. Python, 127 tests. Results are in <a href="https://github.com/Mj2603/Options-Market-Making-Simulator-/blob/main/results/synthetic_walkforward.md" target="_blank" rel="noopener">results/</a>. Run <code>python scripts/run_synthetic_experiment.py</code> to reproduce.</p></div>
+  </div>
+
+  <div class="strip"><span class="pill">AVELLANEDA–STOIKOV</span><span>γ<b id="st-g">0.1</b></span><span>σ<b id="st-sig">2</b></span><span>k<b id="st-k">1.5</b></span><span>A<b id="st-A">140</b></span><span>Fee<b id="st-fee">$0.010</b></span><span>Paths<b id="st-n">1,000</b></span><span>Compute<b id="st-ms">—</b></span></div>
+
+  <section data-mode="live">
     <div class="kpis">
-      <div class="kpi"><div class="k">A–S objective vs. best tuned fixed rule</div><div class="v" id="k-obj">—</div><div class="s" id="k-obj-s"></div></div>
-      <div class="kpi"><div class="k">P&amp;L std, A–S</div><div class="v" id="k-std">—</div><div class="s" id="k-std-s"></div></div>
-      <div class="kpi"><div class="k">Risk reduction vs. matched fixed</div><div class="v" id="k-red">—</div><div class="s">same average quoted spread, so this isolates the inventory skew</div></div>
+      <div class="kpi"><div class="k"><span class="live" id="lv-state">LIVE</span> &nbsp;<span id="lv-sess"></span> · elapsed</div><div class="v" id="lv-t">0%</div><div class="s">mid <b id="lv-mid"></b> · bid/ask <b id="lv-quote"></b></div></div>
+      <div class="kpi"><div class="k">Quote skew, r − S</div><div class="v" id="lv-skew">—</div><div class="s">negative skew pushes quotes down to sell inventory</div></div>
+      <div class="kpi"><div class="k">Inventory</div><div class="v" id="lv-q">—</div><div class="s" id="lv-q-s"></div></div>
+      <div class="kpi"><div class="k">Mark-to-market P&amp;L</div><div class="v" id="lv-p">—</div><div class="s" id="lv-p-s"></div></div>
+      <div class="kpi"><div class="k">Fills</div><div class="v" id="lv-f">0</div><div class="s">one share per fill</div></div>
+    </div>
+    <div class="grid g21">
+      <div class="panel"><div class="ph"><h3>Quotes</h3><span class="lg"><i style="background:var(--ink)"></i>Mid</span><span class="lg"><i style="background:var(--s1)"></i>Reservation</span><span class="lg"><i style="background:var(--up)"></i>Bid ▲</span><span class="lg"><i style="background:var(--dn)"></i>Ask ▼</span>
+        <span style="display:inline-flex;gap:6px;align-items:center;margin-left:auto"><label class="muted" for="lv-speed">Speed</label><select id="lv-speed" style="background:var(--bg);border:1px solid var(--line2);border-radius:8px;padding:4px 6px"><option value="1">1×</option><option value="2" selected>2×</option><option value="4">4×</option></select><button class="btn ghost" id="lv-pause" type="button" style="padding:4px 10px">Pause</button><button class="btn ghost" id="lv-next" type="button" style="padding:4px 10px">Next session</button></span></div>
+        <div class="pb"><canvas class="ch tall" id="lv-quotes"></canvas></div></div>
+      <div class="panel"><div class="ph"><h3>Fills</h3></div><div class="pb"><ul class="log" id="lv-log" style="max-height:380px"></ul></div></div>
+    </div>
+    <div class="grid g2">
+      <div class="panel"><div class="ph"><h3>Inventory</h3><span class="lg"><i style="background:var(--s1)"></i>A–S</span><span class="lg"><i style="background:var(--s3)"></i>Fixed spread, same path</span></div><div class="pb"><canvas class="ch short" id="lv-inv"></canvas></div></div>
+      <div class="panel"><div class="ph"><h3>P&amp;L</h3><span class="lg"><i style="background:var(--s1)"></i>A–S</span><span class="lg"><i style="background:var(--s3)"></i>Fixed spread, same path</span></div><div class="pb"><canvas class="ch short" id="lv-pnl"></canvas></div></div>
+    </div>
+    <p class="read">The fixed-spread quoter faces the same prices and the same order flow, and its quoted width matches the A–S average. As A–S accumulates a position, its reservation price moves away from mid and it fills more often on the side that reduces inventory. The fixed quoter has no such mechanism, so its position follows the flow.</p>
+  </section>
+
+  <section data-mode="montecarlo" hidden>
+    <div class="kpis">
+      <div class="kpi"><div class="k">Objective: A–S minus best fixed rule</div><div class="v" id="k-obj">—</div><div class="s" id="k-obj-s"></div></div>
+      <div class="kpi"><div class="k">P&amp;L standard deviation, A–S</div><div class="v" id="k-std">—</div><div class="s" id="k-std-s"></div></div>
+      <div class="kpi"><div class="k">Risk reduction vs. matched fixed</div><div class="v" id="k-red">—</div><div class="s">same average width; isolates the inventory skew</div></div>
       <div class="kpi"><div class="k">Mean |terminal inventory|</div><div class="v" id="k-inv">—</div><div class="s" id="k-inv-s"></div></div>
     </div>
     <div class="grid g2">
-      <div class="panel"><div class="ph"><h3>Distribution of terminal P&amp;L</h3><span class="lg"><i style="background:var(--s1)"></i>A–S</span><span class="lg"><i style="background:var(--s2)"></i>No skew</span><span class="lg"><i style="background:var(--s3)"></i>Fixed, matched</span><span class="lg"><i style="background:var(--s4)"></i>Best fixed</span></div><div class="pb"><canvas class="ch tall" id="m-dens"></canvas></div></div>
-      <div class="panel"><div class="ph"><h3>Risk vs. return. Upper left is better</h3><span class="muted">small dots are grid points and large dots are your settings</span></div><div class="pb"><canvas class="ch tall" id="m-front"></canvas></div></div>
+      <div class="panel"><div class="ph"><h3>Terminal P&amp;L distribution</h3><span class="lg"><i style="background:var(--s1)"></i>A–S</span><span class="lg"><i style="background:var(--s2)"></i>No skew</span><span class="lg"><i style="background:var(--s3)"></i>Fixed, matched</span><span class="lg"><i style="background:var(--s4)"></i>Best fixed</span></div><div class="pb"><canvas class="ch tall" id="m-dens"></canvas></div></div>
+      <div class="panel"><div class="ph"><h3>Risk vs. return</h3><span class="muted">grid of γ and fixed half-spreads; large markers are the current settings</span></div><div class="pb"><canvas class="ch tall" id="m-front"></canvas></div></div>
     </div>
-    <div class="panel"><div class="ph"><h3>Results over all paths, same random numbers for every strategy</h3></div>
+    <div class="panel"><div class="ph"><h3>Results across all paths</h3><span class="muted">common random numbers</span></div>
       <div class="tw"><table class="t"><thead><tr><th>Strategy</th><th>Mean P&amp;L</th><th>Std</th><th>Worst 5% avg</th><th>Avg spread</th><th>Fills</th><th>|q<sub>T</sub>|</th><th>Peak |q|</th><th>Objective</th></tr></thead><tbody id="m-tbl"></tbody></table></div></div>
-    <p class="notes">The objective is mean P&amp;L minus ½κ times its variance, and the highlighted row scores highest on it. Mean P&amp;L shows ± one standard error over paths. The best tuned fixed rule is chosen from half-spreads 0.30–1.80 on the same objective, so it is a strong baseline. A–S has no structural advantage on mean P&amp;L. Its edge is that it skews quotes to shed inventory, which shows up as lower variance and a smaller terminal position.</p>
-    <div class="evid"><span class="badge b-ok">Repo results</span><span>In the repository's committed walk-forward study (20 seeds per scenario, synthetic), A–S matched a tuned fixed spread on net P&amp;L under random-walk and informed flow, with 26–35% lower P&amp;L dispersion and 22–24% lower peak inventory. It won 19/20 seeds in trending markets.</span><a href="https://github.com/Mj2603/Options-Market-Making-Simulator-/blob/main/results/synthetic_walkforward.md" target="_blank" rel="noopener">results/synthetic_walkforward.md ↗</a></div>
+    <p class="notes">Objective = mean P&amp;L − ½κ·variance; the highlighted row scores highest. Mean P&amp;L is shown ± one standard error. The best fixed rule is selected from half-spreads of 0.30–1.80 on the same objective. A–S does not raise expected P&amp;L. It reduces variance and terminal inventory.</p>
   </section>
 
   <section data-mode="replay" hidden>
@@ -74,36 +101,35 @@
       <div class="kpi"><div class="k">Path <span id="r-path-k"></span> · A–S P&amp;L</div><div class="v" id="r-kpi-pnl">—</div><div class="s" id="r-kpi-pnl-s"></div></div>
       <div class="kpi"><div class="k">Fills</div><div class="v" id="r-kpi-f">—</div><div class="s" id="r-kpi-f-s"></div></div>
       <div class="kpi"><div class="k">Peak |inventory|</div><div class="v" id="r-kpi-q">—</div><div class="s" id="r-kpi-q-s"></div></div>
-      <div class="kpi"><div class="k">Mid move over session</div><div class="v" id="r-kpi-move">—</div><div class="s">$ per share</div></div>
+      <div class="kpi"><div class="k">Mid change</div><div class="v" id="r-kpi-move">—</div><div class="s">$ per share over the session</div></div>
     </div>
-    <div class="panel" style="margin-bottom:16px"><div class="ph"><h3>Quotes along one path</h3><span class="lg"><i style="background:var(--ink)"></i>Mid</span><span class="lg"><i style="background:var(--s1)"></i>Reservation</span><span class="lg"><i style="background:var(--up)"></i>Bid · ▲ buy fill</span><span class="lg"><i style="background:var(--dn)"></i>Ask · ▼ sell fill</span>
+    <div class="panel" style="margin-bottom:16px"><div class="ph"><h3>Quotes along one path</h3><span class="lg"><i style="background:var(--ink)"></i>Mid</span><span class="lg"><i style="background:var(--s1)"></i>Reservation</span><span class="lg"><i style="background:var(--up)"></i>Bid ▲ buy</span><span class="lg"><i style="background:var(--dn)"></i>Ask ▼ sell</span>
       <span style="display:inline-flex;gap:6px;align-items:center;margin-left:auto"><button class="btn ghost" id="r-prev" type="button" aria-label="Previous path">←</button><input type="number" id="r-path" value="0" min="0" style="width:80px;background:var(--bg);border:1px solid var(--line2);border-radius:8px;padding:6px 8px" aria-label="Path number"><button class="btn ghost" id="r-next" type="button" aria-label="Next path">→</button></span></div>
       <div class="pb"><canvas class="ch tall" id="r-quotes"></canvas></div></div>
     <div class="grid g2">
       <div class="panel"><div class="ph"><h3>Inventory</h3><span class="lg"><i style="background:var(--s1)"></i>A–S</span><span class="lg"><i style="background:var(--s3)"></i>Fixed</span></div><div class="pb"><canvas class="ch short" id="r-inv"></canvas></div></div>
       <div class="panel"><div class="ph"><h3>Mark-to-market P&amp;L</h3><span class="lg"><i style="background:var(--s1)"></i>A–S</span><span class="lg"><i style="background:var(--s3)"></i>Fixed</span></div><div class="pb"><canvas class="ch short" id="r-pnl"></canvas></div></div>
     </div>
-    <p class="read"><b>What to watch.</b> When A–S gets long, its reservation price (blue) drops below mid, so the ask moves closer and sell fills become more likely. Inventory gets pulled back toward zero. The fixed-spread quoter, on the same path, lets inventory wander with the order flow.</p>
   </section>
 
   <section data-mode="model" hidden>
     <div class="grid g21">
-      <div class="panel"><div class="ph"><h3>What the policy does in each state: reservation-price offset r − S</h3><span class="lg"><i class="d" style="color:var(--s3)"></i>|skew| = half-spread</span></div><div class="pb"><canvas class="ch tall" id="md-heat"></canvas>
-        <p class="caption">Blue means quotes are shifted up (short inventory, so it wants to buy) and red means shifted down (long inventory). Outside the dashed amber lines the skew is bigger than the half-spread, so one side quotes through the mid to unload. The band widens as the session ends, because the risk term γσ²τ shrinks.</p></div></div>
+      <div class="panel"><div class="ph"><h3>Reservation-price offset r − S by inventory and time</h3><span class="lg"><i class="d" style="color:var(--s3)"></i>|skew| = half-spread</span></div><div class="pb"><canvas class="ch tall" id="md-heat"></canvas>
+        <p class="caption">Blue: quotes shifted up (short inventory). Red: shifted down (long inventory). Beyond the dashed lines the skew exceeds the half-spread and one side quotes through mid. The band widens toward the close as γσ²(T−t) shrinks.</p></div></div>
       <div class="grid" style="margin:0">
         <div class="panel"><div class="ph"><h3>Model</h3></div><div class="pb"><div class="formula">r = S − q·γ·σ²·(T−t)<br>δ<sub>a</sub>+δ<sub>b</sub> = γσ²(T−t) + (2/γ)·ln(1+γ/k)<br>λ(δ) = A·e<sup>−kδ</sup></div></div></div>
         <div class="panel"><dl class="kv">
-          <div><dt>Liquidity part of spread</dt><dd id="md-h0"></dd></div>
+          <div><dt>Liquidity component of spread</dt><dd id="md-h0"></dd></div>
           <div><dt>Inventory risk per unit, γσ²</dt><dd id="md-risk"></dd></div>
-          <div><dt>|q| where skew exceeds half-spread, t=0</dt><dd id="md-q"></dd></div>
-          <div><dt>Fill model</dt><dd>Poisson, per step</dd></div>
-          <div><dt>Price process</dt><dd>arithmetic Brownian</dd></div>
+          <div><dt>|q| at which skew exceeds half-spread (open)</dt><dd id="md-q"></dd></div>
+          <div><dt>Fills</dt><dd>Poisson per step</dd></div>
+          <div><dt>Mid process</dt><dd>Arithmetic Brownian</dd></div>
         </dl></div>
         <div class="panel"><div class="ph"><h3>Quoted spread through the session</h3></div><div class="pb"><canvas class="ch short" id="md-spread"></canvas></div></div>
       </div>
     </div>
   </section>
-  <footer class="foot"><span>© 2026 Mrityunjay Balkrishnan</span><span>All computation runs in your browser. <a href="assets/desk-mm.js" target="_blank" rel="noopener">View source</a></span></footer>
+  <footer class="foot"><span>© 2026 Mrityunjay Balkrishnan</span><span>Simulations run in the browser. <a href="assets/desk-mm.js" target="_blank" rel="noopener">Source</a></span></footer>
 </main>
 </div>
 <script src="assets/core.js"></script>

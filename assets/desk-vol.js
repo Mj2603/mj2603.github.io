@@ -165,6 +165,35 @@ function book() {
   $('#b-heat-rng').textContent = `${money(Math.min(...Z.flat()))} to ${money(Math.max(...Z.flat()))}`;
 }
 
+/* ---- Recalibration monitor: one noisy smile per "day", refit, track parameter stability ---- */
+const M = { day: 0, rho: null, nu: null, hist: [], timer: null, rng: Q.rng(99), g: null };
+function monitorStep() {
+  const p = P(), T = Tsel(), F = p.S * Math.exp(p.r * T), q = paramsAt(p, T), aT = q.a * Math.pow(F, 1 - p.b);
+  if (!M.g) M.g = Q.gauss(M.rng);
+  if (M.rho === null || M.key !== [p.rho, p.nu, p.b, T, p.a].join()) { M.rho = p.rho; M.nu = q.nu; M.hist = []; M.day = 0; M.key = [p.rho, p.nu, p.b, T, p.a].join(); $('#mon-log').innerHTML = ''; }
+  M.rho = Math.max(-0.95, Math.min(0.95, M.rho + 0.01 * M.g())); M.nu = Math.max(0.05, M.nu * Math.exp(0.02 * M.g()));   // the "market" drifts
+  const ks = Array.from({ length: 11 }, (_, i) => F * (0.8 + 0.4 * i / 10)), quotes = ks.map(k => sabr(F, k, T, aT, p.b, M.rho, M.nu) + 0.001 * M.g());
+  const prev = M.hist.length ? M.hist[M.hist.length - 1] : null;
+  const start = prev ? [Math.log(prev.a), Math.atanh(Math.max(-0.99, Math.min(0.99, prev.frho))), Math.log(prev.fnu)] : [Math.log(aT), 0, Math.log(0.5)];
+  const obj = x => { const a = Math.exp(x[0]), rh = Math.tanh(x[1]), n = Math.exp(x[2]); let e = 0; for (let i = 0; i < ks.length; i++) { const d = sabr(F, ks[i], T, a, p.b, rh, n) - quotes[i]; e += d * d; } return Number.isFinite(e) ? e / ks.length : 1e9; };
+  const t0 = performance.now(), r = Q.nelderMead(obj, start, { step: [0.1, 0.2, 0.2], iters: 900, tol: 1e-16 }), ms = performance.now() - t0;
+  const fit = { day: ++M.day, a: Math.exp(r.x[0]), frho: Math.tanh(r.x[1]), fnu: Math.exp(r.x[2]), rho: M.rho, nu: M.nu, rmse: Math.sqrt(r.f) * 1e4, it: r.iters, ms };
+  M.hist.push(fit); if (M.hist.length > 60) M.hist.shift();
+  const P_ = Q.palette(), d = M.hist.map(h => h.day);
+  Q.plot($('#mon-rho'), [{ x: d, y: M.hist.map(h => h.rho), color: P_.muted, width: 1.2, dash: [4, 4], label: 'True ρ' }, { x: d, y: M.hist.map(h => h.frho), color: P_.a, width: 2, label: 'Fitted ρ' }], { xfmt: v => 'd' + v.toFixed(0), yfmt: v => v.toFixed(2) });
+  Q.plot($('#mon-nu'), [{ x: d, y: M.hist.map(h => h.nu), color: P_.muted, width: 1.2, dash: [4, 4], label: 'True ν' }, { x: d, y: M.hist.map(h => h.fnu), color: P_.b, width: 2, label: 'Fitted ν' }], { xfmt: v => 'd' + v.toFixed(0), yfmt: v => v.toFixed(2) });
+  const li = document.createElement('li');
+  li.innerHTML = `<b>Day ${fit.day}</b> · ρ ${fmt(fit.frho, 3)} (${signed(fit.frho - fit.rho, 3)}) · ν ${fmt(fit.fnu, 3)} · RMSE ${fmt(fit.rmse, 1)} bp · ${fit.it} iter · ${fmt(ms, 1)} ms`;
+  const log = $('#mon-log'); log.prepend(li); while (log.children.length > 40) log.lastChild.remove();
+  $('#mon-rmse').textContent = fmt(Q.mean(M.hist.map(h => h.rmse)), 1) + ' bp'; $('#mon-day').textContent = fit.day;
+}
+function monitorLoop() {
+  clearInterval(M.timer); const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches; monitorStep();
+  const st = $('#mon-state'); if (reduce) { st.className = 'live off'; st.textContent = 'PAUSED'; return; }
+  st.className = 'live'; st.textContent = 'RECALIBRATING';
+  M.timer = setInterval(() => { if (!document.hidden && mode === 'surface') monitorStep(); }, 1800);
+}
+
 /* ---- wiring ---- */
 let mode = 'surface';
 const run = () => ({ surface, smile, calibration: calibrate, book })[mode]();
@@ -176,6 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#c-run').addEventListener('click', () => { const b = $('#c-run'); Q.busy(b, true); setTimeout(() => { calibrate(); Q.busy(b, false); }, 20); });
   Q.bind(['c-n', 'c-noise', 'c-trials'], () => {});
   Q.modes('mode', m => { mode = m; run(); });
+  monitorLoop();
   Q.onRedraw(run);
 });
 })();

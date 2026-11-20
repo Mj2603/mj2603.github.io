@@ -3,23 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pairs Desk · Mrityunjay Balkrishnan</title>
+<title>Statistical Arbitrage · Mrityunjay Balkrishnan</title>
 <meta name="description" content="Engle–Granger pairs trading with look-ahead-free walk-forward, per-window cointegration tests and cost sensitivity across seeds.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/desk.css">
 <script>try{const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
 </head>
-<body>
+<body data-desk="pairs">
 <header class="top">
-  <button class="iconbtn" id="collapse" aria-expanded="true" aria-label="Toggle controls panel" title="Toggle controls">☰</button>
+  <button class="iconbtn" id="collapse" aria-expanded="true" aria-label="Toggle parameter panel" title="Parameters">☰</button>
   <a class="brand" href="index.html">Mrityunjay Balkrishnan<span>Berkeley MFE</span></a>
-  <nav class="desks" aria-label="Desks"><a href="index.html">Overview</a><a href="vol.html">Volatility</a><a href="mm.html">Market making</a><a href="lob.html">Order book</a><a href="pairs.html" aria-current="page">Pairs</a></nav>
+  <nav class="desks" aria-label="Projects"><a href="index.html">Home</a><a href="vol.html">Volatility</a><a href="mm.html">Market making</a><a href="lob.html">Order book</a><a href="pairs.html" aria-current="page">Pairs</a><a href="about.html">About</a></nav>
   <button class="iconbtn" id="theme" aria-label="Toggle dark mode" title="Theme">◐</button>
 </header>
 <div class="app">
 <aside class="side" aria-label="Controls">
-  <div class="who"><b>Pairs desk</b>The walk-forward rules from <a href="https://github.com/Mj2603/Statistical-Arbitrage-Research-" target="_blank" rel="noopener">Statistical-Arbitrage-Research-</a> after the look-ahead fixes: everything is fit on the trailing 252 days, then traded for the next 63.</div>
+  <div class="who"><b>Parameters</b>Simulated pairs with known properties, run through the repository's walk-forward rules: fit on the trailing 252 days, trade the next 63.</div>
   <h4>Data</h4>
   <label class="field"><span class="lbl">Pair type</span><select id="p-kind"><option value="coint" selected>Cointegrated</option><option value="break">Regime break halfway</option><option value="rw">Random-walk control</option></select></label>
   <label class="field"><span class="lbl">Mean reversion κ (/day) <output data-out="p-kappa"></output></span><input type="range" id="p-kappa" min="0.005" max="0.25" step="0.005" value="0.08"></label>
@@ -32,16 +32,22 @@
   <label class="field"><span class="lbl">Cost, bps per unit Δposition <output data-out="p-cost"></output></span><input type="range" id="p-cost" min="0" max="30" step="0.5" value="10"></label>
   <label class="field"><span class="lbl">Seeds per point (cost sweep)</span><select id="s-n"><option>10</option><option selected>20</option><option>40</option></select></label>
   <button class="btn wide" id="p-run" type="button">Run</button>
-  <p class="help" style="margin-top:10px">Exit is when z crosses 0. Positions close at each window end and pay the exit cost. Windows that fail the Engle–Granger test count as flat days.</p>
+  <p class="help" style="margin-top:10px">Exit on a zero cross of z. Positions are closed at each window end, including cost. Windows that fail the Engle–Granger test are held flat.</p>
 </aside>
 <main class="main" id="main">
   <div class="dhead">
-    <div class="dtitle"><h1>Pairs desk</h1><p>Engle–Granger walk-forward with no look-ahead</p></div>
+    <div class="dtitle"><span class="proj-no">Project 04</span><h1>Statistical arbitrage</h1><p>Engle–Granger pairs trading, walk-forward without look-ahead</p></div>
     <div class="modes" role="radiogroup" aria-label="View">
       <label><input type="radio" name="mode" value="backtest" checked><span>Backtest</span></label>
       <label><input type="radio" name="mode" value="windows"><span>Windows</span></label>
       <label><input type="radio" name="mode" value="sweep"><span>Cost sweep</span></label>
     </div>
+  </div>
+  <div class="brief">
+    <div><h4>Objective</h4><p>Find out whether a cointegration pairs strategy keeps an edge once every estimate is restricted to past data and realistic costs are charged.</p></div>
+    <div><h4>Method</h4><p>Engle–Granger and Johansen screening on 252-day training windows, an OLS hedge ratio, a 20-day trailing z-score, entry at |z| ≥ 2 and exit on a zero cross, rolled forward quarterly.</p></div>
+    <div><h4>Result</h4><p>On simulated cointegrated pairs: Sharpe 1.06 before costs, 0.40 at 5 bps and −0.29 at 10 bps. Random-walk controls rarely pass the test and earn nothing. NSE banking-pair results are pending.</p></div>
+    <div><h4>Code</h4><p><a href="https://github.com/Mj2603/Statistical-Arbitrage-Research-" target="_blank" rel="noopener">Statistical-Arbitrage-Research-</a>. Python, 46 tests, including look-ahead regression tests that perturb future prices and confirm past trades are unchanged.</p></div>
   </div>
   <div class="strip"><span class="pill" id="st-kind">—</span><span>κ<b id="st-k"></b></span><span>β<b id="st-b"></b></span><span>Entry<b id="st-e"></b></span><span>Cost<b id="st-c"></b></span><span>Train / test<b>252d / 63d</b></span><span>z window<b>20d</b></span><span>Sample<b id="st-y"></b></span></div>
 
@@ -58,10 +64,11 @@
       <div class="panel"><div class="ph"><h3>Spread z-score, out of sample</h3><span class="lg"><i style="background:var(--up)"></i>▲ long spread</span><span class="lg"><i style="background:var(--dn)"></i>▼ short</span><span class="lg"><i style="background:var(--muted)"></i>● exit</span></div><div class="pb"><canvas class="ch short" id="p-z"></canvas></div></div>
     </div>
     <div class="grid g21">
-      <div class="panel"><div class="ph"><h3>Equity</h3><span class="lg"><i style="background:var(--s1)"></i>Net</span><span class="lg"><i class="d" style="color:var(--muted)"></i>Gross</span></div><div class="pb"><canvas class="ch" id="p-eq"></canvas></div></div>
-      <div class="panel"><div class="ph"><h3>Drawdown</h3></div><div class="pb"><canvas class="ch" id="p-dd"></canvas></div></div>
+      <div class="panel"><div class="ph"><h3>Equity</h3><span class="live" id="bt-state">REPLAYING</span><span class="lg"><i style="background:var(--s1)"></i>Net</span><span class="lg"><i class="d" style="color:var(--muted)"></i>Gross</span></div><div class="pb"><canvas class="ch" id="p-eq"></canvas></div></div>
+      <div class="panel"><div class="ph"><h3>Refit log</h3><button class="btn ghost" id="bt-replay" type="button" style="padding:4px 10px;margin-left:auto">Replay</button></div><div class="pb"><ul class="log" id="bt-log" style="max-height:268px"></ul></div></div>
     </div>
-    <p class="read"><b>What makes this honest.</b> The hedge ratio, the cointegration test and the z-score warm-up use only data available before each trading window, and the repository has a regression test proving that changing every future price leaves past trades unchanged. Switch the pair type to <b>Random-walk control</b>: the test rejects most windows and the strategy stays flat. That is the false-positive check.</p>
+    <div class="panel" style="margin-bottom:16px"><div class="ph"><h3>Drawdown</h3></div><div class="pb"><canvas class="ch short" id="p-dd"></canvas></div></div>
+    <p class="read">The hedge ratio, the cointegration test and the z-score warm-up use only data available before each trading window. With the pair type set to <b>Random-walk control</b>, the test rejects most windows and the strategy stays flat. That is the check on false positives.</p>
   </section>
 
   <section data-mode="windows" hidden>
@@ -78,14 +85,14 @@
       <div class="kpi"><div class="k">Cointegrated, Sharpe at 0 bps</div><div class="v" id="s-sr0">—</div><div class="s">mean across seeds</div></div>
       <div class="kpi"><div class="k">Break-even cost</div><div class="v" id="s-be">—</div><div class="s">where the mean Sharpe crosses 0</div></div>
       <div class="kpi"><div class="k">False-positive rate</div><div class="v" id="s-fp">—</div><div class="s">random-walk windows that pass EG at 5%</div></div>
-      <div class="kpi"><div class="k">Compute</div><div class="v" style="font-size:18px" id="s-ms">—</div><div class="s">in your browser</div></div>
+      <div class="kpi"><div class="k">Compute</div><div class="v" style="font-size:18px" id="s-ms">—</div><div class="s">browser</div></div>
     </div>
     <div class="panel" style="margin-bottom:16px"><div class="ph"><h3>Mean out-of-sample Sharpe vs. transaction cost (± 1 s.e. across seeds)</h3><span class="lg"><i style="background:var(--s1)"></i>Cointegrated</span><span class="lg"><i style="background:var(--s3)"></i>Regime break</span><span class="lg"><i style="background:var(--dn)"></i>Random-walk control</span></div><div class="pb"><canvas class="ch tall" id="s-chart"></canvas></div></div>
     <div class="panel"><div class="tw"><table class="t"><thead><tr><th>Group</th><th>0</th><th>2.5</th><th>5</th><th>7.5</th><th>10</th><th>15</th><th>20 bps</th><th>Windows traded</th></tr></thead><tbody id="s-tbl"></tbody></table></div></div>
-    <p class="read" style="margin-top:14px"><b>The finding.</b> With daily rebalancing, the edge on a mean-reverting spread is real but thin. Every basis point of cost takes a roughly constant slice off the Sharpe, and the break-even point above moves with κ and spread noise. Slow, noisy spreads lose their edge first. The repository's committed study reached the same conclusion: Sharpe 1.06 before costs, 0.40 at 5 bps and −0.29 at 10 bps. Results on real NSE banking pairs will be added when that run is committed.</p>
-    <div class="evid"><span class="badge b-ok">Repo results</span><span>Synthetic walk-forward study and look-ahead regression tests, 46 passing.</span><a href="https://github.com/Mj2603/Statistical-Arbitrage-Research-/blob/main/results/synthetic_walkforward.md" target="_blank" rel="noopener">results/synthetic_walkforward.md ↗</a><span class="badge b-wip">In progress</span><span>Real NSE banking pairs</span></div>
+    <p class="read" style="margin-top:14px">Sharpe falls roughly linearly with cost. The break-even level depends on mean-reversion speed and spread noise: slow, noisy spreads lose their edge first. Random-walk controls pass the 5% test at close to its nominal rate, which confirms the test is calibrated.</p>
+    <div class="evid"><span>Repository results:</span><a href="https://github.com/Mj2603/Statistical-Arbitrage-Research-/blob/main/results/synthetic_walkforward.md" target="_blank" rel="noopener">results/synthetic_walkforward.md ↗</a><span class="badge b-wip">Pending</span><span>NSE banking pairs (HDFC Bank / ICICI Bank, 2019–)</span></div>
   </section>
-  <footer class="foot"><span>© 2026 Mrityunjay Balkrishnan</span><span>All computation runs in your browser. <a href="assets/desk-pairs.js" target="_blank" rel="noopener">View source</a></span></footer>
+  <footer class="foot"><span>© 2026 Mrityunjay Balkrishnan</span><span>Computation runs in the browser. <a href="assets/desk-pairs.js" target="_blank" rel="noopener">Source</a></span></footer>
 </main>
 </div>
 <script src="assets/core.js"></script>

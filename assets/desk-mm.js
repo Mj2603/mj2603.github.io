@@ -116,15 +116,57 @@ function model() {
     { xlabel: 'Session elapsed (%)', yfmt: v => v.toFixed(2), xfmt: v => v.toFixed(0), yMin: 0 });
   $('#md-h0').textContent = fmt(2 * h0, 3); $('#md-risk').textContent = fmt(g * s2, 4); $('#md-q').textContent = fmt(qCross[0], 1);
 }
-let mode = 'montecarlo';
-const run = () => { const b = $('#m-run'); Q.busy(b, true); setTimeout(() => { ({ montecarlo: monteCarlo, replay, model })[mode](); Q.busy(b, false); }, 15); };
+/* ---- Live session: one trading session played forward in time ---- */
+let L = { timer: null, k: 0, j: 0, a: null, f: null, p: null, paused: false };
+function liveStart(j) {
+  const p = params(), D = draws(p); L.p = p; L.j = j % p.n; L.k = 0;
+  $('#st-g').textContent = p.gamma; $('#st-sig').textContent = p.sigma; $('#st-k').textContent = p.k; $('#st-A').textContent = p.A; $('#st-fee').textContent = '$' + fmt(p.fee, 3); $('#st-n').textContent = p.n.toLocaleString(); $('#st-ms').textContent = 'live';
+  const a = simulate(p, { kind: 'as', gamma: p.gamma }, D, L.j), f = simulate(p, { kind: 'fixed', half: a.spread / 2 }, D, L.j);
+  L.a = a.path; L.f = f.path; L.fills = [...L.a.buys.map(b => ({ ...b, side: 'B' })), ...L.a.sells.map(s => ({ ...s, side: 'S' }))].sort((x, y) => x.x - y.x);
+  $('#lv-log').innerHTML = ''; $('#lv-sess').textContent = `Session ${L.j + 1}`;
+}
+function liveFrame() {
+  const P_ = Q.palette(), pa = L.a, pf = L.f, k = Math.min(L.k, pa.t.length - 1), sl = a => a.slice(0, k + 1);
+  const dt = L.p.T / L.p.steps, tNow = pa.t[k];
+  const fills = L.fills.filter(x => x.x <= tNow + 1e-12);
+  Q.plot($('#lv-quotes'), [
+    { x: sl(pa.t), y: sl(pa.ask), color: P_.dn, width: 1, label: 'Ask' }, { x: sl(pa.t), y: sl(pa.bid), color: P_.up, width: 1, label: 'Bid' },
+    { x: sl(pa.t), y: sl(pa.S), color: P_.ink, width: 1.4, label: 'Mid' },
+    { x: sl(pa.t), y: sl(pa.r), color: P_.a, width: 1.8, label: 'Reservation', marks: fills.map(x => ({ x: x.x, y: x.y, shape: x.side === 'B' ? 'up' : 'dn', color: x.side === 'B' ? P_.up : P_.dn })) },
+  ], { xMin: 0, xMax: L.p.T, xfmt: v => (v * 100).toFixed(0) + '%', yMin: Math.min(...pa.bid) - 0.3, yMax: Math.max(...pa.ask) + 0.3 });
+  Q.plot($('#lv-inv'), [{ x: sl(pf.t), y: sl(pf.q), color: P_.c, width: 1.4, label: 'Fixed' }, { x: sl(pa.t), y: sl(pa.q), color: P_.a, width: 2, label: 'A–S' }],
+    { xMin: 0, xMax: L.p.T, hlines: [0], xfmt: v => (v * 100).toFixed(0) + '%', yfmt: v => v.toFixed(0), yMin: Math.min(...pa.q, ...pf.q) - 1, yMax: Math.max(...pa.q, ...pf.q) + 1 });
+  Q.plot($('#lv-pnl'), [{ x: sl(pf.t), y: sl(pf.pnl), color: P_.c, width: 1.4, label: 'Fixed' }, { x: sl(pa.t), y: sl(pa.pnl), color: P_.a, width: 2, label: 'A–S' }],
+    { xMin: 0, xMax: L.p.T, hlines: [0], xfmt: v => (v * 100).toFixed(0) + '%', yfmt: v => money(v), yMin: Math.min(...pa.pnl, ...pf.pnl) - 2, yMax: Math.max(...pa.pnl, ...pf.pnl) + 2 });
+  $('#lv-t').textContent = (tNow * 100).toFixed(0) + '%'; $('#lv-mid').textContent = fmt(pa.S[k], 2);
+  $('#lv-quote').textContent = `${fmt(pa.bid[k], 2)} / ${fmt(pa.ask[k], 2)}`; $('#lv-skew').textContent = signed(pa.r[k] - pa.S[k], 3);
+  $('#lv-q').textContent = signed(pa.q[k], 0); $('#lv-q-s').textContent = `fixed spread ${signed(pf.q[k], 0)}`;
+  $('#lv-p').textContent = money(pa.pnl[k], 2); $('#lv-p').className = 'v ' + (pa.pnl[k] >= 0 ? 'pos' : 'neg'); $('#lv-p-s').textContent = `fixed spread ${money(pf.pnl[k], 2)}`;
+  $('#lv-f').textContent = fills.length;
+  const log = $('#lv-log'), shown = log.children.length;
+  for (let i = shown; i < fills.length; i++) { const x = fills[i], li = document.createElement('li'); const qi = Math.min(pa.q.length - 1, Math.round(x.x / dt));
+    li.innerHTML = `<span class="muted">${(x.x * 100).toFixed(1)}%</span> &nbsp;<b class="${x.side === 'B' ? 'up' : 'dn'}">${x.side === 'B' ? 'BOUGHT' : 'SOLD'}</b> 1 @ ${fmt(x.y, 2)} &nbsp;<span class="muted">inv → ${signed(pa.q[qi], 0)}</span>`; log.prepend(li); }
+}
+function liveLoop() {
+  clearInterval(L.timer); const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!L.a) liveStart(L.j);
+  if (reduce) { L.k = L.a.t.length - 1; liveFrame(); setLive(false); return; }
+  setLive(true);
+  L.timer = setInterval(() => { if (L.paused || mode !== 'live' || document.hidden) return; const speed = parseInt($('#lv-speed').value, 10); L.k += speed;
+    if (L.k >= L.a.t.length + 25) { liveStart(L.j + 1); } liveFrame(); }, 50);
+}
+const setLive = on => { const el = $('#lv-state'); el.textContent = on && !L.paused ? 'LIVE' : 'PAUSED'; el.className = 'live' + (on && !L.paused ? '' : ' off'); };
+let mode = 'live';
+const run = () => { const b = $('#m-run'); Q.busy(b, true); setTimeout(() => { if (mode === 'live') { L.a = null; liveStart(L.j); liveFrame(); liveLoop(); } else ({ montecarlo: monteCarlo, replay, model })[mode](); Q.busy(b, false); }, 15); };
 document.addEventListener('DOMContentLoaded', () => {
   Q.bind(['m-sig', 'm-A', 'm-k', 'm-gamma', 'm-fee', 'm-kappa', 'm-steps', 'm-qmax', 'm-n'], Q.debounce(() => { if (mode !== 'montecarlo') run(); }, 60));
   $('#m-run').addEventListener('click', run);
   $('#r-path').addEventListener('input', Q.debounce(replay, 80));
   $('#r-prev').addEventListener('click', () => { $('#r-path').value = Math.max(0, +$('#r-path').value - 1); replay(); });
   $('#r-next').addEventListener('click', () => { $('#r-path').value = +$('#r-path').value + 1; replay(); });
+  $('#lv-pause').addEventListener('click', e => { L.paused = !L.paused; e.currentTarget.textContent = L.paused ? 'Resume' : 'Pause'; setLive(true); });
+  $('#lv-next').addEventListener('click', () => { liveStart(L.j + 1); liveFrame(); });
   Q.modes('mode', m => { mode = m; run(); });
-  Q.onRedraw(() => ({ montecarlo: monteCarlo, replay, model })[mode]());
+  Q.onRedraw(() => { if (mode === 'live') { if (L.a) liveFrame(); } else ({ montecarlo: monteCarlo, replay, model })[mode](); });
 });
 })();

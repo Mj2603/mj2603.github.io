@@ -3,30 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Volatility Desk · Mrityunjay Balkrishnan</title>
+<title>Volatility Surface · Mrityunjay Balkrishnan</title>
 <meta name="description" content="SABR volatility desk: 3D implied-vol surface, smile and risk-neutral density, live calibration with parameter uncertainty, and option-book scenario risk.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/desk.css">
 <script>try{const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
 </head>
-<body>
+<body data-desk="vol">
 <header class="top">
-  <button class="iconbtn" id="collapse" aria-expanded="true" aria-label="Toggle controls panel" title="Toggle controls">☰</button>
+  <button class="iconbtn" id="collapse" aria-expanded="true" aria-label="Toggle parameter panel" title="Parameters">☰</button>
   <a class="brand" href="index.html">Mrityunjay Balkrishnan<span>Berkeley MFE</span></a>
-  <nav class="desks" aria-label="Desks">
-    <a href="index.html">Overview</a>
-    <a href="vol.html" aria-current="page">Volatility</a>
-    <a href="mm.html">Market making</a>
-    <a href="lob.html">Order book</a>
-    <a href="pairs.html">Pairs</a>
+  <nav class="desks" aria-label="Projects">
+    <a href="index.html">Home</a><a href="vol.html" aria-current="page">Volatility</a><a href="mm.html">Market making</a><a href="lob.html">Order book</a><a href="pairs.html">Pairs</a><a href="about.html">About</a>
   </nav>
   <button class="iconbtn" id="theme" aria-label="Toggle dark mode" title="Theme">◐</button>
 </header>
 
 <div class="app">
 <aside class="side" aria-label="Controls">
-  <div class="who"><b>Volatility desk</b>A browser port of the SABR and Black–Scholes code in <a href="https://github.com/Mj2603/Derivatives-Pricing-Library-C-" target="_blank" rel="noopener">Derivatives-Pricing-Library-C-</a>, using the same Hagan (2002) formula and the same calibration approach.</div>
+  <div class="who"><b>Parameters</b>Define the SABR surface. Every view on this page uses the same Hagan (2002) implementation as the C++ library.</div>
   <h4>Market</h4>
   <label class="field"><span class="lbl">Spot S <output data-out="v-S"></output></span><input type="range" id="v-S" min="50" max="150" step="1" value="100"></label>
   <label class="field"><span class="lbl">Rate % <output data-out="v-r"></output></span><input type="range" id="v-r" min="0" max="8" step="0.25" value="3"></label>
@@ -39,12 +35,12 @@
   <label class="field"><span class="lbl">ν decay, ν(T)=ν·T<sup>−d</sup> <output data-out="v-decay"></output></span><input type="range" id="v-decay" min="0" max="0.6" step="0.05" value="0.3"></label>
   <label class="field"><span class="lbl">ATM level slope <output data-out="v-term"></output></span><input type="range" id="v-term" min="-0.4" max="0.4" step="0.05" value="0.1"></label>
   <label class="field"><span class="lbl">Expiry in focus</span><select id="v-T"><option>0.1</option><option>0.25</option><option selected>0.5</option><option>1</option><option>1.5</option><option>2</option></select></label>
-  <p class="help">The highlighted slice on the surface, the smile view, calibration and the book all use this expiry where it applies.</p>
+  <p class="help">Used by the highlighted slice, the smile view, calibration and the recalibration monitor.</p>
 </aside>
 
 <main class="main" id="main">
   <div class="dhead">
-    <div class="dtitle"><h1>Volatility desk</h1><p>SABR surface, risk-neutral density, calibration and book risk</p></div>
+    <div class="dtitle"><span class="proj-no">Project 01</span><h1>Volatility surface</h1><p>SABR pricing, calibration and option-book risk</p></div>
     <div class="modes" role="radiogroup" aria-label="View">
       <label><input type="radio" name="mode" value="surface" checked><span>Surface</span></label>
       <label><input type="radio" name="mode" value="smile"><span>Smile &amp; density</span></label>
@@ -52,24 +48,40 @@
       <label><input type="radio" name="mode" value="book"><span>Book</span></label>
     </div>
   </div>
+  <div class="brief">
+    <div><h4>Objective</h4><p>Price and risk-manage options off a calibrated, arbitrage-checked implied-volatility surface, as on a commodity options desk.</p></div>
+    <div><h4>Method</h4><p>Hagan (2002) lognormal SABR with fixed β and per-expiry α, ρ, ν. Least-squares calibration by bounded Nelder–Mead, and Black-76 pricing on the forward.</p></div>
+    <div><h4>Result</h4><p>Matches an independent Python reference to 1e-11. On a 17-strike smile, calibration recovers the parameters to about 1e-6 in about 0.4 ms. The library also includes binomial, Monte Carlo and Crank–Nicolson engines.</p></div>
+    <div><h4>Code</h4><p><a href="https://github.com/Mj2603/Derivatives-Pricing-Library-C-" target="_blank" rel="noopener">Derivatives-Pricing-Library-C-</a>. C++17, 8 test suites. In practice: SABR and local-vol calibration across 20+ commodity surfaces at Deloitte.</p></div>
+  </div>
   <div class="strip"><span class="pill" id="st-model">SABR</span><span>Spot<b id="st-spot"></b></span><span>Rate<b id="st-rate"></b></span><span>ρ<b id="st-rho"></b></span><span>ν(1y)<b id="st-nu"></b></span><span>Focus expiry<b id="st-T"></b></span></div>
 
   <!-- SURFACE -->
   <section data-mode="surface">
     <div class="kpis">
       <div class="kpi"><div class="k">ATM vol, 1y</div><div class="v" id="k-atm">—</div><div class="s">σ at K = F</div></div>
-      <div class="kpi"><div class="k">Skew, 90% − 110%, 1y</div><div class="v" id="k-skew">—</div><div class="s">set mostly by ρ</div></div>
-      <div class="kpi"><div class="k">Wing convexity, 1y</div><div class="v" id="k-fly">—</div><div class="s">average of the wings minus ATM, set mostly by ν</div></div>
+      <div class="kpi"><div class="k">Skew, 90% − 110%, 1y</div><div class="v" id="k-skew">—</div><div class="s">driven by ρ</div></div>
+      <div class="kpi"><div class="k">Wing convexity, 1y</div><div class="v" id="k-fly">—</div><div class="s">wing average minus ATM; driven by ν</div></div>
       <div class="kpi"><div class="k">ATM term slope</div><div class="v" id="k-term">—</div><div class="s">2y minus 3m</div></div>
     </div>
     <div class="grid g21">
-      <div class="panel"><div class="ph"><h3>Implied volatility surface</h3><span class="muted">Drag to rotate · the amber line is the focus expiry</span></div><div class="pb"><canvas class="surf" id="surf" role="img" aria-label="3D implied volatility surface by strike and expiry"></canvas></div></div>
+      <div class="panel"><div class="ph"><h3>Implied volatility surface</h3><span class="muted">drag to rotate · amber: focus expiry</span></div><div class="pb"><canvas class="surf" id="surf" role="img" aria-label="3D implied volatility surface by strike and expiry"></canvas></div></div>
       <div class="grid" style="margin:0">
         <div class="panel"><div class="ph"><h3>Smiles by expiry</h3><span class="lg"><i style="background:var(--s1)"></i>3m</span><span class="lg"><i style="background:var(--s2)"></i>6m</span><span class="lg"><i style="background:var(--s3)"></i>1y</span><span class="lg"><i style="background:var(--s4)"></i>2y</span></div><div class="pb"><canvas class="ch short" id="slices"></canvas></div></div>
         <div class="panel"><div class="ph"><h3>Term structure</h3><span class="lg"><i style="background:var(--s3)"></i>90%</span><span class="lg"><i style="background:var(--s1)"></i>ATM</span><span class="lg"><i style="background:var(--s2)"></i>110%</span></div><div class="pb"><canvas class="ch short" id="term"></canvas></div></div>
       </div>
     </div>
-    <p class="read"><b>How to read it.</b> Each slice across strike is a Hagan SABR smile. Negative ρ tilts it so that downside strikes trade rich, which is the usual shape in equity and crude oil. ν curves the wings. Vol-of-vol usually falls with expiry, which is why the decay term exists: long-dated smiles flatten even though ρ is the same. This is the parameterisation I calibrated across 20+ exchange-traded commodity option surfaces at Deloitte.</p>
+    <div class="grid g12">
+      <div class="panel"><div class="ph"><h3>Daily recalibration</h3><span class="live" id="mon-state">RECALIBRATING</span></div><div class="pb">
+        <p class="help" style="margin:0 0 10px">Each tick is a trading day. The underlying smile drifts, 11 quotes arrive with 10 bp of noise, and the model is refit starting from the previous day's parameters, as a desk would run it.</p>
+        <dl class="kv"><div><dt>Days</dt><dd id="mon-day">0</dd></div><div><dt>Mean fit RMSE</dt><dd id="mon-rmse">—</dd></div></dl>
+        <ul class="log" id="mon-log" style="margin-top:10px;max-height:220px"></ul></div></div>
+      <div class="grid" style="margin:0">
+        <div class="panel"><div class="ph"><h3>Fitted ρ vs. true ρ</h3><span class="lg"><i style="background:var(--s1)"></i>Fitted</span><span class="lg"><i class="d" style="color:var(--muted)"></i>True</span></div><div class="pb"><canvas class="ch short" id="mon-rho"></canvas></div></div>
+        <div class="panel"><div class="ph"><h3>Fitted ν vs. true ν</h3><span class="lg"><i style="background:var(--s2)"></i>Fitted</span><span class="lg"><i class="d" style="color:var(--muted)"></i>True</span></div><div class="pb"><canvas class="ch short" id="mon-nu"></canvas></div></div>
+      </div>
+    </div>
+    <p class="read">Negative ρ lifts downside strikes, the usual shape in equity indices and crude oil, while ν controls wing curvature. Vol-of-vol is decayed with expiry, so long-dated smiles flatten at constant ρ. The recalibration panel shows the practical issue: ν is less well identified than ρ, so its day-to-day estimates are noisier for the same quote quality.</p>
   </section>
 
   <!-- SMILE -->
@@ -86,14 +98,14 @@
     </div>
     <div class="panel"><div class="ph"><h3>Strike ladder</h3><span class="muted">Black-76 on the forward, sticky-strike Greeks</span></div>
       <div class="tw"><table class="t"><thead><tr><th>Strike</th><th>Implied vol</th><th>Call</th><th>Put</th><th>Call Δ</th><th>Vega / vol-pt</th></tr></thead><tbody id="smile-tbl"></tbody></table></div></div>
-    <p class="read" style="margin-top:14px"><b>Why the density matters.</b> The second derivative of call prices with respect to strike, scaled by e<sup>rT</sup>, gives the market-implied distribution. A good-looking smile can still give a negative density in the wings. That is static arbitrage, and the Hagan expansion is known to produce it at low strikes when ν·√T is large, so I check it before trusting any calibrated surface.</p>
+    <p class="read" style="margin-top:14px">The density is e<sup>rT</sup>·∂²C/∂K², computed numerically from SABR prices. The Hagan expansion can produce negative density at low strikes when ν√T is large, which is a static arbitrage. A calibrated surface is checked for this before use.</p>
   </section>
 
   <!-- CALIBRATION -->
   <section data-mode="calibration" hidden>
     <div class="grid g12">
       <div class="panel"><div class="ph"><h3>Synthetic quotes</h3></div><div class="pb">
-        <p class="help" style="margin:0 0 12px">The sidebar parameters define the "true" smile at the focus expiry. Quotes are drawn from it with Gaussian noise. β is fixed, and α, ρ and ν are fitted by Nelder–Mead on transformed parameters (log α, atanh ρ, log ν), starting from an ATM-anchored guess.</p>
+        <p class="help" style="margin:0 0 12px">Quotes are drawn from the sidebar smile at the focus expiry with Gaussian noise. With β fixed, α, ρ and ν are fitted by Nelder–Mead on log α, atanh ρ and log ν, starting from an ATM-anchored guess.</p>
         <div class="row2">
           <label class="field"><span class="lbl">Quotes</span><select id="c-n"><option>7</option><option selected>11</option><option>17</option><option>25</option></select></label>
           <label class="field"><span class="lbl">Seed</span><input type="number" id="c-seed" value="7" min="1"></label>
@@ -108,14 +120,14 @@
       <div class="kpi"><div class="k">Fit RMSE</div><div class="v" id="c-rmse">—</div><div class="s" id="c-noise-k">—</div></div>
       <div class="kpi"><div class="k">Max error vs. true smile</div><div class="v" id="c-max">—</div><div class="s">at the quoted strikes</div></div>
       <div class="kpi"><div class="k">Iterations</div><div class="v" id="c-iters">—</div><div class="s">Nelder–Mead</div></div>
-      <div class="kpi"><div class="k">Time in your browser</div><div class="v" id="c-ms">—</div><div class="s">the C++ version takes ~0.4 ms for 17 quotes</div></div>
+      <div class="kpi"><div class="k">Fit time (browser)</div><div class="v" id="c-ms">—</div><div class="s">C++ library: ~0.4 ms for 17 quotes</div></div>
     </div>
     <div class="grid g2">
       <div class="panel"><div class="ph"><h3>Parameters, single fit</h3></div><div class="tw"><table class="t"><thead><tr><th>Parameter</th><th>True</th><th>Fitted</th><th>Error</th></tr></thead><tbody id="c-tbl"></tbody></table></div></div>
       <div class="panel"><div class="ph"><h3>Fitted ρ vs ν over <span id="c-trials-k"></span> noisy draws</h3><span class="lg"><i style="background:var(--s3)"></i>Truth</span></div><div class="pb"><canvas class="ch short" id="c-scatter"></canvas></div></div>
     </div>
     <div class="panel"><div class="ph"><h3>Sampling distribution of the estimates</h3><span class="muted">mean ± one standard error</span></div><div class="tw"><table class="t"><thead><tr><th>Parameter</th><th>True</th><th>Mean of fits</th><th>Std across fits</th><th>5%–95% range</th></tr></thead><tbody id="c-mc"></tbody></table></div></div>
-    <p class="read" style="margin-top:14px"><b>What the scatter shows.</b> ρ and ν trade off against each other: both bend the wings, so noisy wing quotes move them together along a ridge. That is why a desk fixes β, anchors α to ATM, and watches parameter stability from day to day instead of trusting one fit.</p>
+    <p class="read" style="margin-top:14px">ρ and ν are partially collinear, because both affect the wings, so quote noise moves the estimates along a ridge. This is the reason for fixing β, anchoring α to the ATM level, and monitoring parameter stability rather than relying on a single fit.</p>
   </section>
 
   <!-- BOOK -->
@@ -124,7 +136,7 @@
       <div class="panel"><div class="ph"><h3>Book</h3><span class="pill long" id="b-gamma">—</span></div><div class="pb">
         <label class="field"><span class="lbl">Preset</span><select id="book-preset"><option value="rr">Risk reversal (long call, short put)</option><option value="straddle">Short ATM straddle</option><option value="strangle">Long strangle</option><option value="fly">Call butterfly</option><option value="calendar">Calendar spread</option></select></label>
         <div class="tw"><table class="t"><thead><tr><th>Type</th><th>Strike</th><th>Expiry y</th><th>Contracts</th></tr></thead><tbody id="book-rows"></tbody></table></div>
-        <p class="help" style="margin:10px 0 0">Each contract is 100 shares, and a negative number means short. Every leg is priced at its own point on the SABR surface.</p>
+        <p class="help" style="margin:10px 0 0">100 shares per contract; negative quantities are short. Each leg is priced at its own point on the surface.</p>
       </div></div>
       <div class="panel"><div class="ph"><h3>P&amp;L vs. spot</h3><span class="lg"><i style="background:var(--s1)"></i>Today</span><span class="lg"><i style="background:var(--s3)"></i>+1 week</span><span class="lg"><i class="d" style="color:var(--muted)"></i>First expiry</span></div><div class="pb"><canvas class="ch" id="b-pnl"></canvas></div></div>
     </div>
@@ -137,12 +149,11 @@
     </div>
     <div class="grid g2">
       <div class="panel"><div class="ph"><h3>Risk by leg</h3></div><div class="tw"><table class="t"><thead><tr><th>Leg</th><th>Vol</th><th>Value</th><th>Δ sh</th><th>Γ</th><th>Vega</th><th>Θ/day</th></tr></thead><tbody id="book-tbl"></tbody></table></div></div>
-      <div class="panel"><div class="ph"><h3>Scenario P&amp;L: spot × parallel vol shift</h3><span class="muted" id="b-heat-rng"></span></div><div class="pb"><canvas class="ch" id="b-heat"></canvas><p class="caption">Blue is a gain and red is a loss. Sticky-strike full revaluation, not a Greek approximation.</p></div></div>
+      <div class="panel"><div class="ph"><h3>Scenario P&amp;L: spot × parallel vol shift</h3><span class="muted" id="b-heat-rng"></span></div><div class="pb"><canvas class="ch" id="b-heat"></canvas><p class="caption">Blue: gain. Red: loss. Full sticky-strike revaluation.</p></div></div>
     </div>
   </section>
 
-  <div class="evid"><span class="badge b-ok">Verified</span><span>The C++ library's SABR matches an independent Python reference to 1e-11, and calibration recovers α, ρ and ν to ~1e-6 on a 17-strike smile. 8/8 test suites pass.</span><a href="https://github.com/Mj2603/Derivatives-Pricing-Library-C-" target="_blank" rel="noopener">Source ↗</a></div>
-  <footer class="foot"><span>© 2026 Mrityunjay Balkrishnan</span><span>All computation runs in your browser. <a href="assets/desk-vol.js" target="_blank" rel="noopener">View source</a></span></footer>
+    <footer class="foot"><span>© 2026 Mrityunjay Balkrishnan</span><span>Computation runs in the browser. <a href="assets/desk-vol.js" target="_blank" rel="noopener">Source</a></span></footer>
 </main>
 </div>
 <script src="assets/core.js"></script>

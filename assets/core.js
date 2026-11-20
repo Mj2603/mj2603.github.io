@@ -46,7 +46,7 @@ Q.nelderMead = (f, x0, { step = 0.1, iters = 600, tol = 1e-12 } = {}) => {
 /* ---------- formatting ---------- */
 Q.fmt = (x, d = 2) => Number.isFinite(x) ? x.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }) : '—';
 Q.money = (x, d = 0) => Number.isFinite(x) ? (x < 0 ? '−$' : '$') + Math.abs(x).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }) : '—';
-Q.signed = (x, d = 2) => Number.isFinite(x) ? (x >= 0 ? '+' : '−') + Math.abs(x).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }) : '—';
+Q.signed = (x, d = 2) => Number.isFinite(x) ? (Math.abs(x) < 0.5 * Math.pow(10, -d) ? '' : x > 0 ? '+' : '−') + Math.abs(x).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }) : '—';
 Q.pct = (x, d = 1) => Number.isFinite(x) ? (x * 100).toFixed(d) + '%' : '—';
 const nice = (lo, hi, n = 5) => { const span = hi - lo || 1, raw = span / n, mag = Math.pow(10, Math.floor(Math.log10(raw))), r = raw / mag; const st = (r < 1.5 ? 1 : r < 3 ? 2 : r < 7 ? 5 : 10) * mag; const t = []; for (let v = Math.ceil(lo / st) * st; v <= hi + st * 1e-9; v += st) t.push(+v.toFixed(12)); return t; };
 
@@ -73,9 +73,9 @@ Q.plot = (canvas, series, o = {}) => {
   if (x1 - x0 < 1e-12) { x0 -= 1; x1 += 1; }
   const X = v => pad.l + (v - x0) / (x1 - x0) * (w - pad.l - pad.r), Y = v => h - pad.b - (v - y0) / (y1 - y0) * (h - pad.t - pad.b);
   g.font = '11px "JetBrains Mono",ui-monospace,monospace'; g.lineWidth = 1;
-  nice(y0, y1, o.yTicks || 5).forEach(v => { const y = Y(v); g.strokeStyle = P.grid; g.beginPath(); g.moveTo(pad.l, y); g.lineTo(w - pad.r, y); g.stroke(); g.fillStyle = P.muted; g.textAlign = 'right'; g.textBaseline = 'middle'; g.fillText(o.yfmt ? o.yfmt(v) : Q.fmt(v, Math.abs(v) >= 10 ? 0 : Math.abs(v) >= 1 ? 1 : 2), pad.l - 8, y); });
+  let lastY = null; nice(y0, y1, o.yTicks || 5).forEach(v => { const y = Y(v), lab = o.yfmt ? o.yfmt(v) : Q.fmt(v, Math.abs(v) >= 10 ? 0 : Math.abs(v) >= 1 ? 1 : 2); g.strokeStyle = P.grid; g.beginPath(); g.moveTo(pad.l, y); g.lineTo(w - pad.r, y); g.stroke(); if (lab === lastY) return; lastY = lab; g.fillStyle = P.muted; g.textAlign = 'right'; g.textBaseline = 'middle'; g.fillText(lab, pad.l - 8, y); });
   const xt = o.xticks || nice(x0, x1, Math.max(3, Math.floor((w - pad.l) / 90)));
-  xt.forEach(v => { if (v < x0 - 1e-9 || v > x1 + 1e-9) return; const x = X(v); g.strokeStyle = P.grid; g.beginPath(); g.moveTo(x, pad.t); g.lineTo(x, h - pad.b); g.stroke(); g.fillStyle = P.muted; g.textAlign = 'center'; g.textBaseline = 'top'; g.fillText(o.xfmt ? o.xfmt(v) : Q.fmt(v, Math.abs(v) >= 10 ? 0 : Math.abs(v) >= 1 ? 1 : 2), x, h - pad.b + 7); });
+  let lastX = null; xt.forEach(v => { if (v < x0 - 1e-9 || v > x1 + 1e-9) return; const x = X(v), lab = o.xfmt ? o.xfmt(v) : Q.fmt(v, Math.abs(v) >= 10 ? 0 : Math.abs(v) >= 1 ? 1 : 2); g.strokeStyle = P.grid; g.beginPath(); g.moveTo(x, pad.t); g.lineTo(x, h - pad.b); g.stroke(); if (lab === lastX) return; lastX = lab; g.fillStyle = P.muted; g.textAlign = 'center'; g.textBaseline = 'top'; g.fillText(lab, x, h - pad.b + 7); });
   if (o.xlabel) { g.fillStyle = P.muted; g.textAlign = 'center'; g.textBaseline = 'bottom'; g.font = '12px Inter,system-ui,sans-serif'; g.fillText(o.xlabel, pad.l + (w - pad.l - pad.r) / 2, h - 2); g.font = '11px "JetBrains Mono",monospace'; }
   if (o.ylabel) { g.save(); g.translate(12, pad.t + (h - pad.t - pad.b) / 2); g.rotate(-Math.PI / 2); g.fillStyle = P.muted; g.textAlign = 'center'; g.font = '12px Inter,system-ui,sans-serif'; g.fillText(o.ylabel, 0, 0); g.restore(); }
   g.save(); g.beginPath(); g.rect(pad.l, pad.t, w - pad.l - pad.r, h - pad.t - pad.b); g.clip();
@@ -193,7 +193,7 @@ Q.surface = (canvas, data, o = {}) => {
     const up = () => { st.drag = null; canvas.style.cursor = 'grab'; };
     canvas.addEventListener('pointerup', up); canvas.addEventListener('pointercancel', up);
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const spin = () => { if (st.auto && !reduce && document.visibilityState === 'visible' && canvas.isConnected && canvas.offsetParent) { st.yaw += 0.0035; draw(); } requestAnimationFrame(spin); };
+    const spin = () => { if (st.auto && !reduce && document.visibilityState === 'visible' && canvas.isConnected && canvas.offsetParent) { st.phase = (st.phase || 0) + 0.006; st.yaw = -0.85 + 0.38 * Math.sin(st.phase); draw(); } requestAnimationFrame(spin); };
     requestAnimationFrame(spin);
   }
   draw();
