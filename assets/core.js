@@ -116,12 +116,12 @@ function attachHover(canvas) {
 
 /* Heatmap with optional overlay lines. z[i][j]: i over ys (rows), j over xs (cols) */
 Q.ramp = t => { // perceptual dark-navy → blue → cyan → pale
-  const stops = [[10, 16, 34], [22, 58, 128], [38, 120, 220], [92, 200, 235], [232, 246, 210]];
+  const stops = [[48, 36, 28], [110, 64, 42], [178, 96, 54], [222, 160, 102], [246, 230, 200]];
   t = Math.max(0, Math.min(1, t)) * (stops.length - 1); const i = Math.min(stops.length - 2, Math.floor(t)), f = t - i;
   const c = stops[i].map((v, k) => Math.round(v + (stops[i + 1][k] - v) * f)); return `rgb(${c[0]},${c[1]},${c[2]})`;
 };
 Q.diverge = t => { // −1..1 red–neutral–blue
-  t = Math.max(-1, Math.min(1, t)); const n = document.documentElement.dataset.theme === 'dark' ? [28, 34, 48] : [246, 246, 244], p = [56, 140, 245], m = [236, 86, 74];
+  t = Math.max(-1, Math.min(1, t)); const n = document.documentElement.dataset.theme === 'dark' ? [40, 33, 26] : [250, 246, 238], p = [47, 125, 109], m = [194, 70, 42];
   const c = (t >= 0 ? p : m).map((v, k) => Math.round(n[k] + (v - n[k]) * Math.abs(t))); return `rgb(${c[0]},${c[1]},${c[2]})`;
 };
 Q.heat = (canvas, z, xs, ys, o = {}) => {
@@ -160,11 +160,11 @@ Q.surface = (canvas, data, o = {}) => {
     };
     const U = i => -1 + 2 * i / (nx - 1), V = j => -1 + 2 * j / (ny - 1), T = v => (v - zl) / (zh - zl || 1);
     // floor grid + axes
-    g.lineWidth = 1; g.strokeStyle = P.grid;
+    g.lineWidth = 1; g.strokeStyle = st.o.bare ? 'rgba(60,45,30,0.10)' : P.grid;
     for (let k = 0; k <= 4; k++) { const a = proj(-1 + k / 2, -1, 0), b = proj(-1 + k / 2, 1, 0), c = proj(-1, -1 + k / 2, 0), d = proj(1, -1 + k / 2, 0); g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.moveTo(c[0], c[1]); g.lineTo(d[0], d[1]); g.stroke(); }
     // back wall vertical lines
     const wallU = cy * sy > 0 ? 1 : -1;
-    for (let k = 0; k <= 4; k++) { const a = proj(-1, -1, k / 4), b = proj(1, -1, k / 4); g.strokeStyle = P.grid; g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.stroke(); }
+    for (let k = 0; k <= 4 && !st.o.bare; k++) { const a = proj(-1, -1, k / 4), b = proj(1, -1, k / 4); g.strokeStyle = P.grid; g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.stroke(); }
     // quads, painter's algorithm
     const quads = [];
     for (let i = 0; i < nx - 1; i++) for (let j = 0; j < ny - 1; j++) {
@@ -173,10 +173,15 @@ Q.surface = (canvas, data, o = {}) => {
       quads.push({ pts, d: pts.reduce((s, p) => s + p[2], 0), t: T((vals[0] + vals[1] + vals[2] + vals[3]) / 4) });
     }
     quads.sort((a, b) => b.d - a.d);
-    for (const q of quads) { g.beginPath(); q.pts.forEach((p, k) => k ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.closePath(); g.fillStyle = Q.ramp(0.15 + 0.8 * q.t); g.fill(); g.strokeStyle = 'rgba(255,255,255,0.18)'; g.lineWidth = 0.6; g.stroke(); }
+    for (const q of quads) { g.beginPath(); q.pts.forEach((p, k) => k ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.closePath();
+      if (st.o.stone) { const [a, b, c] = q.pts, ux = b[0] - a[0], uy = b[1] - a[1], vx = c[0] - a[0], vy = c[1] - a[1], area = Math.abs(ux * vy - uy * vx);
+        const lit = Math.max(0, Math.min(1, 0.35 + 0.65 * Math.tanh(area / 90))), gv = Math.round(70 + 120 * lit * (0.55 + 0.45 * q.t));
+        g.fillStyle = `rgb(${gv},${gv - 2},${gv - 6})`; g.fill(); g.strokeStyle = 'rgba(30,24,18,0.35)'; g.lineWidth = 0.5; g.stroke(); }
+      else { g.fillStyle = Q.ramp(0.15 + 0.8 * q.t); g.fill(); g.strokeStyle = 'rgba(255,255,255,0.18)'; g.lineWidth = 0.6; g.stroke(); } }
     // highlight slice
-    if (st.o.highlight !== undefined) { const j = st.o.highlight; g.strokeStyle = Q.css('--s3'); g.lineWidth = 2.4; g.beginPath(); for (let i = 0; i < nx; i++) { const p = proj(U(i), V(j), T(Z[i][j])); i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1]); } g.stroke(); }
+    if (st.o.highlight !== undefined) { const j = st.o.highlight; g.strokeStyle = st.o.stone ? '#d9452b' : Q.css('--s3'); g.lineWidth = st.o.stone ? 3 : 2.4; g.beginPath(); for (let i = 0; i < nx; i++) { const p = proj(U(i), V(j), T(Z[i][j])); i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1]); } g.stroke(); }
     // axis labels
+    if (st.o.bare) return;
     g.fillStyle = P.muted; g.font = '11px "JetBrains Mono",monospace'; g.textAlign = 'center'; g.textBaseline = 'middle';
     const lab = (u, v, t, s) => { const p = proj(u, v, t); g.fillText(s, p[0], p[1]); };
     [0, 0.5, 1].forEach(f => { const i = Math.round(f * (nx - 1)); lab(U(i), 1.22, 0, st.o.xfmt ? st.o.xfmt(xs[i]) : xs[i]); });

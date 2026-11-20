@@ -6,14 +6,14 @@
 <title>Market Making · Mrityunjay Balkrishnan</title>
 <meta name="description" content="Inventory-aware market making: Avellaneda–Stoikov quoting against tuned fixed-spread rules, with a live session, paired Monte Carlo and policy analysis.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/desk.css">
 <script>try{const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
 </head>
 <body data-desk="mm">
 <header class="top">
   <button class="iconbtn" id="collapse" aria-expanded="true" aria-label="Toggle parameter panel" title="Parameters">☰</button>
-  <a class="brand" href="index.html">Mrityunjay Balkrishnan<span>Berkeley MFE</span></a>
+  <a class="h-logo" href="index.html"><i aria-hidden="true">MB</i>mrityunjay</a>
   <nav class="desks" aria-label="Projects"><a href="index.html">Home</a><a href="vol.html">Volatility</a><a href="mm.html" aria-current="page">Market making</a><a href="lob.html">Order book</a><a href="pairs.html">Pairs</a><a href="about.html">About</a></nav>
   <button class="iconbtn" id="theme" aria-label="Toggle dark mode" title="Theme">◐</button>
 </header>
@@ -115,7 +115,7 @@
   <section data-mode="model" hidden>
     <div class="grid g21">
       <div class="panel"><div class="ph"><h3>Reservation-price offset r − S by inventory and time</h3><span class="lg"><i class="d" style="color:var(--s3)"></i>|skew| = half-spread</span></div><div class="pb"><canvas class="ch tall" id="md-heat"></canvas>
-        <p class="caption">Blue: quotes shifted up (short inventory). Red: shifted down (long inventory). Beyond the dashed lines the skew exceeds the half-spread and one side quotes through mid. The band widens toward the close as γσ²(T−t) shrinks.</p></div></div>
+        <p class="caption">Teal: quotes shifted up (short inventory). Rust: shifted down (long inventory). Beyond the dashed lines the skew exceeds the half-spread and one side quotes through mid. The band widens toward the close as γσ²(T−t) shrinks.</p></div></div>
       <div class="grid" style="margin:0">
         <div class="panel"><div class="ph"><h3>Model</h3></div><div class="pb"><div class="formula">r = S − q·γ·σ²·(T−t)<br>δ<sub>a</sub>+δ<sub>b</sub> = γσ²(T−t) + (2/γ)·ln(1+γ/k)<br>λ(δ) = A·e<sup>−kδ</sup></div></div></div>
         <div class="panel"><dl class="kv">

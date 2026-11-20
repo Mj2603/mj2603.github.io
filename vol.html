@@ -6,14 +6,14 @@
 <title>Volatility Surface · Mrityunjay Balkrishnan</title>
 <meta name="description" content="SABR volatility desk: 3D implied-vol surface, smile and risk-neutral density, live calibration with parameter uncertainty, and option-book scenario risk.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/desk.css">
 <script>try{const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
 </head>
 <body data-desk="vol">
 <header class="top">
   <button class="iconbtn" id="collapse" aria-expanded="true" aria-label="Toggle parameter panel" title="Parameters">☰</button>
-  <a class="brand" href="index.html">Mrityunjay Balkrishnan<span>Berkeley MFE</span></a>
+  <a class="h-logo" href="index.html"><i aria-hidden="true">MB</i>mrityunjay</a>
   <nav class="desks" aria-label="Projects">
     <a href="index.html">Home</a><a href="vol.html" aria-current="page">Volatility</a><a href="mm.html">Market making</a><a href="lob.html">Order book</a><a href="pairs.html">Pairs</a><a href="about.html">About</a>
   </nav>
@@ -149,7 +149,7 @@
     </div>
     <div class="grid g2">
       <div class="panel"><div class="ph"><h3>Risk by leg</h3></div><div class="tw"><table class="t"><thead><tr><th>Leg</th><th>Vol</th><th>Value</th><th>Δ sh</th><th>Γ</th><th>Vega</th><th>Θ/day</th></tr></thead><tbody id="book-tbl"></tbody></table></div></div>
-      <div class="panel"><div class="ph"><h3>Scenario P&amp;L: spot × parallel vol shift</h3><span class="muted" id="b-heat-rng"></span></div><div class="pb"><canvas class="ch" id="b-heat"></canvas><p class="caption">Blue: gain. Red: loss. Full sticky-strike revaluation.</p></div></div>
+      <div class="panel"><div class="ph"><h3>Scenario P&amp;L: spot × parallel vol shift</h3><span class="muted" id="b-heat-rng"></span></div><div class="pb"><canvas class="ch" id="b-heat"></canvas><p class="caption">Teal: gain. Rust: loss. Full sticky-strike revaluation.</p></div></div>
     </div>
   </section>
 
