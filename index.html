@@ -44,6 +44,13 @@
         <a class="i" href="https://www.linkedin.com/in/mj2603/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.95v5.66H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg></a>
         <a class="i" href="mailto:mj2603@berkeley.edu" aria-label="Email"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></a>
         <a class="pillbtn" href="resume.pdf" target="_blank" rel="noopener">Résumé <span aria-hidden="true">↗</span></a>
+        <button class="track" id="track" type="button" aria-pressed="false" aria-label="Play Dracula">
+          <span class="tp" aria-hidden="true"><svg class="play" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l13-7.5z"/></svg><svg class="pause" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg></span>
+          <span class="tt"><b>Dracula</b><small>on repeat</small></span>
+          <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+          <span class="bar" aria-hidden="true"><span id="track-prog"></span></span>
+        </button>
+        <audio id="track-audio" src="dracula.mp3" preload="none" loop></audio>
       </div>
     </div>
   </section>
@@ -70,6 +77,31 @@
       <li><div><b>Pro-Alpha Capital</b> <span class="r">· Quant Intern, Trading Research</span></div><span class="d">11/2024 – 05/2025</span></li>
     </ul>
     <p style="margin:18px 0 0"><a class="pillbtn" href="about.html">Full experience, education and honours <span aria-hidden="true">→</span></a></p>
+  </section>
+
+  <section class="h-sec" id="travel">
+    <h2>Last few trips</h2>
+    <p class="sub">Places that made me forget the markets exist.</p>
+    <div class="trips" id="trips"></div>
+  </section>
+
+  <section class="h-sec equip">
+    <div class="equip-art"><canvas id="lorenz" role="img" aria-label="Rotating Lorenz attractor drawn as a line figure"></canvas><span class="cap">Lorenz attractor · σ 10, ρ 28, β 8/3</span></div>
+    <div>
+      <h2>Equipped</h2>
+      <p class="sub" style="margin-bottom:26px">Current loadout.</p>
+      <div class="loadout">
+        <div class="lo hot"><span class="k">Desk <em>Setup</em></span><ul><li>Bloomberg Terminal</li><li>Dual 4K monitors</li><li>MacBook M2 · Ubuntu</li></ul></div>
+        <div class="lo"><span class="k">Shelf <em>Reading</em></span><ul><li>The Quants</li><li>Liar's Poker</li><li>Fifty Challenging Problems in Probability</li><li>Hull, Options, Futures &amp; Other Derivatives</li></ul></div>
+        <div class="lo"><span class="k">Stack <em>Daily</em></span><ul><li>Python · NumPy · Pandas</li><li>C++17 · CMake</li><li>Git · SQL</li></ul></div>
+      </div>
+      <div class="jam">
+        <div class="jh"><span class="eqs" aria-hidden="true"><i></i><i></i><i></i><i></i></span><b>2026 Jamlist</b>
+          <button class="jplay" id="jam-play" type="button" aria-label="Play Dracula">▶ <span>Now playing: Dracula</span></button></div>
+        <div class="chips"><span>Karan Aujla</span><span>Tame Impala</span><span>Radiohead</span><span>Pink Floyd</span><span>Daft Punk</span></div>
+        <span class="yr" aria-hidden="true">2026</span>
+      </div>
+    </div>
   </section>
 
   <footer class="h-foot"><span>© 2026 Mrityunjay Balkrishnan</span><span><a href="mailto:mj2603@berkeley.edu">mj2603@berkeley.edu</a> · <a href="https://www.linkedin.com/in/mj2603/" target="_blank" rel="noopener">LinkedIn</a> · <a href="https://github.com/Mj2603" target="_blank" rel="noopener">GitHub</a></span></footer>
