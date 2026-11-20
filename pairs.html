@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pairs Desk · Mrityunjay Balkrishnan</title>
+<meta name="description" content="Engle–Granger pairs trading with look-ahead-free walk-forward, per-window cointegration tests and cost sensitivity across seeds.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/desk.css">
+<script>try{const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+<header class="top">
+  <button class="iconbtn" id="collapse" aria-expanded="true" aria-label="Toggle controls panel" title="Toggle controls">☰</button>
+  <a class="brand" href="index.html">Mrityunjay Balkrishnan<span>Berkeley MFE</span></a>
+  <nav class="desks" aria-label="Desks"><a href="index.html">Overview</a><a href="vol.html">Volatility</a><a href="mm.html">Market making</a><a href="lob.html">Order book</a><a href="pairs.html" aria-current="page">Pairs</a></nav>
+  <button class="iconbtn" id="theme" aria-label="Toggle dark mode" title="Theme">◐</button>
+</header>
+<div class="app">
+<aside class="side" aria-label="Controls">
+  <div class="who"><b>Pairs desk</b>The walk-forward rules from <a href="https://github.com/Mj2603/Statistical-Arbitrage-Research-" target="_blank" rel="noopener">Statistical-Arbitrage-Research-</a> after the look-ahead fixes: everything is fit on the trailing 252 days, then traded for the next 63.</div>
+  <h4>Data</h4>
+  <label class="field"><span class="lbl">Pair type</span><select id="p-kind"><option value="coint" selected>Cointegrated</option><option value="break">Regime break halfway</option><option value="rw">Random-walk control</option></select></label>
+  <label class="field"><span class="lbl">Mean reversion κ (/day) <output data-out="p-kappa"></output></span><input type="range" id="p-kappa" min="0.005" max="0.25" step="0.005" value="0.08"></label>
+  <label class="field"><span class="lbl">True hedge ratio β <output data-out="p-beta"></output></span><input type="range" id="p-beta" min="0.3" max="2" step="0.05" value="1.2"></label>
+  <label class="field"><span class="lbl">Spread noise ($/day) <output data-out="p-svol"></output></span><input type="range" id="p-svol" min="0.1" max="2" step="0.05" value="0.6"></label>
+  <div class="row2"><label class="field"><span class="lbl">Years</span><select id="p-years"><option>4</option><option selected>6</option><option>10</option></select></label>
+  <label class="field"><span class="lbl">Seed</span><input type="number" id="p-seed" value="3" min="1"></label></div>
+  <h4>Strategy</h4>
+  <label class="field"><span class="lbl">Entry |z| <output data-out="p-entry"></output></span><input type="range" id="p-entry" min="1" max="3" step="0.1" value="2"></label>
+  <label class="field"><span class="lbl">Cost, bps per unit Δposition <output data-out="p-cost"></output></span><input type="range" id="p-cost" min="0" max="30" step="0.5" value="10"></label>
+  <label class="field"><span class="lbl">Seeds per point (cost sweep)</span><select id="s-n"><option>10</option><option selected>20</option><option>40</option></select></label>
+  <button class="btn wide" id="p-run" type="button">Run</button>
+  <p class="help" style="margin-top:10px">Exit is when z crosses 0. Positions close at each window end and pay the exit cost. Windows that fail the Engle–Granger test count as flat days.</p>
+</aside>
+<main class="main" id="main">
+  <div class="dhead">
+    <div class="dtitle"><h1>Pairs desk</h1><p>Engle–Granger walk-forward with no look-ahead</p></div>
+    <div class="modes" role="radiogroup" aria-label="View">
+      <label><input type="radio" name="mode" value="backtest" checked><span>Backtest</span></label>
+      <label><input type="radio" name="mode" value="windows"><span>Windows</span></label>
+      <label><input type="radio" name="mode" value="sweep"><span>Cost sweep</span></label>
+    </div>
+  </div>
+  <div class="strip"><span class="pill" id="st-kind">—</span><span>κ<b id="st-k"></b></span><span>β<b id="st-b"></b></span><span>Entry<b id="st-e"></b></span><span>Cost<b id="st-c"></b></span><span>Train / test<b>252d / 63d</b></span><span>z window<b>20d</b></span><span>Sample<b id="st-y"></b></span></div>
+
+  <section data-mode="backtest">
+    <div class="kpis">
+      <div class="kpi"><div class="k">Out-of-sample Sharpe, net</div><div class="v" id="k-sr">—</div><div class="s" id="k-sr-s"></div></div>
+      <div class="kpi"><div class="k">CAGR, net</div><div class="v" id="k-cagr">—</div><div class="s">on gross notional</div></div>
+      <div class="kpi"><div class="k">Max drawdown</div><div class="v" id="k-mdd">—</div><div class="s">out of sample</div></div>
+      <div class="kpi"><div class="k">Windows traded</div><div class="v" id="k-pass">—</div><div class="s" id="k-pass-s"></div></div>
+      <div class="kpi"><div class="k">Turnover / year</div><div class="v" id="k-to">—</div><div class="s" id="k-to-s"></div></div>
+    </div>
+    <div class="grid g2">
+      <div class="panel"><div class="ph"><h3>Prices, rebased</h3><span class="lg"><i style="background:var(--s1)"></i>Y</span><span class="lg"><i style="background:var(--s3)"></i>X</span><span class="muted">dashed line = end of first training window</span></div><div class="pb"><canvas class="ch short" id="p-px"></canvas></div></div>
+      <div class="panel"><div class="ph"><h3>Spread z-score, out of sample</h3><span class="lg"><i style="background:var(--up)"></i>▲ long spread</span><span class="lg"><i style="background:var(--dn)"></i>▼ short</span><span class="lg"><i style="background:var(--muted)"></i>● exit</span></div><div class="pb"><canvas class="ch short" id="p-z"></canvas></div></div>
+    </div>
+    <div class="grid g21">
+      <div class="panel"><div class="ph"><h3>Equity</h3><span class="lg"><i style="background:var(--s1)"></i>Net</span><span class="lg"><i class="d" style="color:var(--muted)"></i>Gross</span></div><div class="pb"><canvas class="ch" id="p-eq"></canvas></div></div>
+      <div class="panel"><div class="ph"><h3>Drawdown</h3></div><div class="pb"><canvas class="ch" id="p-dd"></canvas></div></div>
+    </div>
+    <p class="read"><b>What makes this honest.</b> The hedge ratio, the cointegration test and the z-score warm-up use only data available before each trading window, and the repository has a regression test proving that changing every future price leaves past trades unchanged. Switch the pair type to <b>Random-walk control</b>: the test rejects most windows and the strategy stays flat. That is the false-positive check.</p>
+  </section>
+
+  <section data-mode="windows" hidden>
+    <div class="grid g2">
+      <div class="panel"><div class="ph"><h3>Hedge ratio estimated in each training window</h3><span class="lg"><i style="background:var(--s3)"></i>true β</span></div><div class="pb"><canvas class="ch short" id="w-beta"></canvas></div></div>
+      <div class="panel"><div class="ph"><h3>ADF t-statistic on training residuals</h3><span class="lg"><i style="background:var(--dn)"></i>5% critical (−3.37)</span></div><div class="pb"><canvas class="ch short" id="w-adf"></canvas></div></div>
+    </div>
+    <div class="panel"><div class="ph"><h3>Walk-forward windows</h3><span class="muted">each row: fit on the previous 252 days, trade the next 63</span></div>
+      <div class="tw"><table class="t"><thead><tr><th>#</th><th>Test start</th><th>β (train)</th><th>ADF t</th><th>Decision</th><th>Trades</th><th>Net return</th></tr></thead><tbody id="w-tbl"></tbody></table></div></div>
+  </section>
+
+  <section data-mode="sweep" hidden>
+    <div class="kpis">
+      <div class="kpi"><div class="k">Cointegrated, Sharpe at 0 bps</div><div class="v" id="s-sr0">—</div><div class="s">mean across seeds</div></div>
+      <div class="kpi"><div class="k">Break-even cost</div><div class="v" id="s-be">—</div><div class="s">where the mean Sharpe crosses 0</div></div>
+      <div class="kpi"><div class="k">False-positive rate</div><div class="v" id="s-fp">—</div><div class="s">random-walk windows that pass EG at 5%</div></div>
+      <div class="kpi"><div class="k">Compute</div><div class="v" style="font-size:18px" id="s-ms">—</div><div class="s">in your browser</div></div>
+    </div>
+    <div class="panel" style="margin-bottom:16px"><div class="ph"><h3>Mean out-of-sample Sharpe vs. transaction cost (± 1 s.e. across seeds)</h3><span class="lg"><i style="background:var(--s1)"></i>Cointegrated</span><span class="lg"><i style="background:var(--s3)"></i>Regime break</span><span class="lg"><i style="background:var(--dn)"></i>Random-walk control</span></div><div class="pb"><canvas class="ch tall" id="s-chart"></canvas></div></div>
+    <div class="panel"><div class="tw"><table class="t"><thead><tr><th>Group</th><th>0</th><th>2.5</th><th>5</th><th>7.5</th><th>10</th><th>15</th><th>20 bps</th><th>Windows traded</th></tr></thead><tbody id="s-tbl"></tbody></table></div></div>
+    <p class="read" style="margin-top:14px"><b>The finding.</b> With daily rebalancing, the edge on a mean-reverting spread is real but thin. Every basis point of cost takes a roughly constant slice off the Sharpe, and the break-even point above moves with κ and spread noise. Slow, noisy spreads lose their edge first. The repository's committed study reached the same conclusion: Sharpe 1.06 before costs, 0.40 at 5 bps and −0.29 at 10 bps. Results on real NSE banking pairs will be added when that run is committed.</p>
+    <div class="evid"><span class="badge b-ok">Repo results</span><span>Synthetic walk-forward study and look-ahead regression tests, 46 passing.</span><a href="https://github.com/Mj2603/Statistical-Arbitrage-Research-/blob/main/results/synthetic_walkforward.md" target="_blank" rel="noopener">results/synthetic_walkforward.md ↗</a><span class="badge b-wip">In progress</span><span>Real NSE banking pairs</span></div>
+  </section>
+  <footer class="foot"><span>© 2026 Mrityunjay Balkrishnan</span><span>All computation runs in your browser. <a href="assets/desk-pairs.js" target="_blank" rel="noopener">View source</a></span></footer>
+</main>
+</div>
+<script src="assets/core.js"></script>
+<script src="assets/desk-pairs.js"></script>
+</body>
+</html>

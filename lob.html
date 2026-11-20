@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order Book Desk · Mrityunjay Balkrishnan</title>
+<meta name="description" content="Price–time priority limit order book: live order flow, FIFO queues, depth, micro-price and imbalance, plus verified C++ engine benchmarks.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/desk.css">
+<script>try{const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+<header class="top">
+  <button class="iconbtn" id="collapse" aria-expanded="true" aria-label="Toggle controls panel" title="Toggle controls">☰</button>
+  <a class="brand" href="index.html">Mrityunjay Balkrishnan<span>Berkeley MFE</span></a>
+  <nav class="desks" aria-label="Desks"><a href="index.html">Overview</a><a href="vol.html">Volatility</a><a href="mm.html">Market making</a><a href="lob.html" aria-current="page">Order book</a><a href="pairs.html">Pairs</a></nav>
+  <button class="iconbtn" id="theme" aria-label="Toggle dark mode" title="Theme">◐</button>
+</header>
+<div class="app">
+<aside class="side" aria-label="Controls">
+  <div class="who"><b>Order book desk</b>The same matching rules as <a href="https://github.com/Mj2603/LowLatencyLOBEngine" target="_blank" rel="noopener">LowLatencyLOBEngine</a> (C++17): integer ticks, FIFO at each level, cancel by id, and best bid and ask tracked directly.</div>
+  <h4>Order flow</h4>
+  <label class="field"><span class="lbl">Cancels % <output data-out="l-cancel"></output></span><input type="range" id="l-cancel" min="0" max="45" step="1" value="20"></label>
+  <label class="field"><span class="lbl">Marketable orders % <output data-out="l-mkt"></output></span><input type="range" id="l-mkt" min="0" max="45" step="1" value="18"></label>
+  <label class="field"><span class="lbl">Passive placement width (ticks) <output data-out="l-width"></output></span><input type="range" id="l-width" min="1" max="12" step="1" value="4"></label>
+  <label class="field"><span class="lbl">Buy-side pressure % <output data-out="l-imb"></output></span><input type="range" id="l-imb" min="-20" max="20" step="1" value="0"></label>
+  <label class="field"><span class="lbl">Events per frame <output data-out="l-speed"></output></span><input type="range" id="l-speed" min="1" max="60" step="1" value="6"></label>
+  <label class="field"><span class="lbl">Seed</span><input type="number" id="l-seed" value="7" min="1"></label>
+  <div class="row2"><button class="btn" id="l-play" type="button">Stream flow</button><button class="btn ghost" id="l-step" type="button">Step</button></div>
+  <div class="row2" style="margin-top:10px"><button class="btn ghost" id="l-reset" type="button">Reset</button><button class="btn ghost" id="l-bench" type="button">Benchmark</button></div>
+  <h4>Your order</h4>
+  <form id="order">
+    <div class="row2"><label class="field"><span class="lbl">Side</span><select id="o-side"><option value="B">Buy</option><option value="S">Sell</option></select></label>
+    <label class="field"><span class="lbl">Type</span><select id="o-type"><option value="L">Limit</option><option value="M">Market</option></select></label></div>
+    <div class="row2"><label class="field"><span class="lbl">Price</span><input type="number" id="o-px" step="0.01" value="99.99" inputmode="decimal"></label>
+    <label class="field"><span class="lbl">Qty</span><input type="number" id="o-qty" step="1" min="1" value="100" inputmode="numeric"></label></div>
+    <button class="btn wide" type="submit">Send</button>
+    <p class="help" id="o-msg" role="status" style="margin:8px 0 0"></p>
+  </form>
+</aside>
+<main class="main" id="main">
+  <div class="dhead"><div class="dtitle"><h1>Order book desk</h1><p>Price–time priority matching, queue position and microstructure signals</p></div></div>
+  <div class="strip"><span class="pill">PRICE–TIME FIFO</span><span>Best bid<b id="st-bb"></b></span><span>Best ask<b id="st-ba"></b></span><span>Events<b id="st-ev"></b></span><span>Resting orders<b id="st-live"></b></span><span>Levels bid/ask<b id="st-lv"></b></span><span>Tick<b>0.01</b></span></div>
+  <div class="kpis">
+    <div class="kpi"><div class="k">Fills</div><div class="v" id="k-fills">0</div><div class="s" id="k-fills-s"></div></div>
+    <div class="kpi"><div class="k">Cancel-to-fill ratio</div><div class="v" id="k-ratio">—</div><div class="s">one of the signal families I researched at Pro-Alpha</div></div>
+    <div class="kpi"><div class="k">Level-1 imbalance</div><div class="v" id="k-imb">—</div><div class="s">(bid qty − ask qty) / total at the touch</div></div>
+    <div class="kpi"><div class="k">Average spread</div><div class="v" id="k-spread">—</div><div class="s">over the visible history</div></div>
+    <div class="kpi"><div class="k">Throughput, this page</div><div class="v" id="k-js">—</div><div class="s" id="k-js-s">Press Benchmark for 200k events in JavaScript</div></div>
+  </div>
+  <div class="grid g12">
+    <div class="panel"><div class="ph"><h3>Ladder</h3><span class="muted">chips are resting orders in queue order · amber = yours</span></div><div class="pb"><div class="ladder" id="ladder" aria-live="off"></div></div></div>
+    <div class="grid" style="margin:0">
+      <div class="panel"><div class="ph"><h3>Cumulative depth</h3><span class="lg"><i style="background:var(--up)"></i>Bids</span><span class="lg"><i style="background:var(--dn)"></i>Asks</span></div><div class="pb"><canvas class="ch short" id="depth"></canvas></div></div>
+      <div class="panel"><div class="ph"><h3>Mid vs. micro-price</h3><span class="lg"><i style="background:var(--ink)"></i>Mid</span><span class="lg"><i style="background:var(--s1)"></i>Micro-price</span></div><div class="pb"><canvas class="ch short" id="midc"></canvas></div></div>
+      <div class="panel"><div class="ph"><h3>Order-book imbalance</h3></div><div class="pb"><canvas class="ch xs" id="imbc"></canvas></div></div>
+    </div>
+  </div>
+  <div class="grid g2">
+    <div class="panel"><div class="ph"><h3>Trade tape</h3><span class="muted">maker ← taker</span></div><div class="pb"><ul class="tape" id="tape"></ul></div></div>
+    <div class="panel"><div class="ph"><h3>Your resting orders</h3></div><div class="pb"><ul class="tape" id="mine"></ul></div></div>
+  </div>
+  <p class="read"><b>Reading the book.</b> The micro-price weights bid and ask by the size on the opposite side, so it leans toward the side about to be depleted. It moves before the mid does, which is why imbalance and micro-price skew were among the strongest short-horizon signals in my Pro-Alpha research. Post a passive order and watch its queue position improve as orders ahead of it fill or cancel.</p>
+  <div class="panel"><div class="ph"><h3>C++ engine benchmark (from the repository)</h3><span class="badge b-ok">Verified</span></div>
+    <div class="tw"><table class="t"><thead><tr><th>Workload</th><th>Throughput</th><th>p50</th><th>p99</th><th>p99.9</th></tr></thead><tbody>
+      <tr><td>Randomized multi-level (60% passive, 20% marketable, 20% cancels)</td><td>10.3M–10.9M ev/s</td><td>86–91 ns</td><td>489–513 ns</td><td>720–781 ns</td></tr>
+      <tr><td>Same workload, before best-price tracking</td><td>120k–126k ev/s</td><td>8.8 µs</td><td>20.4–21.1 µs</td><td>38.8–50.2 µs</td></tr>
+      <tr><td>Stress (single price level)</td><td>18.9M–19.6M ev/s</td><td>78–81 ns</td><td>112–119 ns</td><td>251–261 ns</td></tr>
+    </tbody></table></div>
+    <p class="notes" style="padding:0 14px 12px">Per-event latency is measured with steady_clock around each submit and process on a 4-vCPU cloud VM (Xeon 2.1 GHz, GCC 13.3, -O3). It is single-threaded and hardware-dependent. Correctness is checked by a differential test against a std::map reference book (36 seeds, 270k operations) and under ASan/UBSan. <a href="https://github.com/Mj2603/LowLatencyLOBEngine/blob/main/docs/benchmark_results.md" target="_blank" rel="noopener">docs/benchmark_results.md ↗</a></p></div>
+  <footer class="foot"><span>© 2026 Mrityunjay Balkrishnan</span><span>All computation runs in your browser. <a href="assets/desk-lob.js" target="_blank" rel="noopener">View source</a></span></footer>
+</main>
+</div>
+<script src="assets/core.js"></script>
+<script src="assets/desk-lob.js"></script>
+</body>
+</html>

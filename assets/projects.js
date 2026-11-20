@@ -16,7 +16,7 @@ window.PROJECTS = [
     id: 'dpl', name: 'Derivatives Pricing Library', repo: 'Derivatives-Pricing-Library-C-', stack: 'C++17 · CMake · Python reference checks',
     blurb: 'Pricing engines for European, American, barrier and Asian options: closed-form Black–Scholes, a CRR binomial tree, Monte Carlo (antithetic paths plus a control variate) and finite differences (explicit, implicit and Crank–Nicolson), with analytic Greeks and an implied-vol solver.',
     claims: [
-      ['ok', 'Black–Scholes call 10.4506 (S=K=100, r=5%, σ=20%, T=1), matching the Python reference. 7/7 tests pass.'],
+      ['ok', 'Black–Scholes call 10.4506 (S=K=100, r=5%, σ=20%, T=1), matching the Python reference.'],
       ['ok', 'Benchmarks vs. closed form: binomial(500) error 0.004 in ~135 µs, Crank–Nicolson 200×200 error 0.005 in <1 ms, MC 100k×100 error 0.013.'],
       ['ok', 'Hagan (2002) SABR implied vol, matched to an independent Python reference to 1e-11. Multi-quote calibration recovers α, ρ, ν to about 1e-6 on a 17-strike smile in about 0.4 ms. 8/8 test suites pass.'],
     ],
@@ -48,31 +48,5 @@ window.PROJECTS = [
   },
 ];
 
-(() => {
-  const label = { ok: 'Verified', part: 'Caveat', wip: 'In progress' };
-  const cls = { ok: 'b-ok', part: 'b-part', wip: 'b-wip' };
-  const esc = s => s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
-  const list = document.getElementById('project-list');
-  if (list) list.innerHTML = window.PROJECTS.map(p => `
-    <article class="proj" id="proj-${p.id}">
-      <h3>${esc(p.name)}</h3>
-      <p class="stack">${esc(p.stack)}</p>
-      <p>${esc(p.blurb)}</p>
-      ${p.claims.length ? `<ul class="claims">${p.claims.map(([s, t]) => `<li><span class="badge ${cls[s]}">${label[s]}</span><span>${esc(t)}</span></li>`).join('')}</ul>` : ''}
-      ${p.repro ? `<pre class="repro" aria-label="Reproduce">${esc(p.repro)}</pre>` : ''}
-      <div class="links">
-        <a href="https://github.com/Mj2603/${p.repo}" target="_blank" rel="noopener">Source on GitHub ↗</a>
-        <a href="#lab-${p.demo}" data-demo="${p.demo}">Open live demo</a>
-      </div>
-    </article>`).join('');
-  document.addEventListener('click', e => {
-    const a = e.target.closest('[data-demo]'); if (!a) return;
-    const t = document.getElementById('t-' + a.dataset.demo); if (t) { e.preventDefault(); t.click(); document.getElementById('lab').scrollIntoView({ behavior: 'smooth' }); }
-  });
-  // short evidence lines under each demo
-  const ev = { lob: 'ev-lob', dpl: 'ev-dpl', mm: 'ev-mm', sa: 'ev-sa' };
-  window.PROJECTS.forEach(p => {
-    const el = document.getElementById(ev[p.id]); if (!el || !p.claims.length) return;
-    el.innerHTML = p.claims.map(([s, t]) => `<span class="badge ${cls[s]}">${label[s]}</span>${esc(t)}`).join('<br>');
-  });
-})();
+window.PROJECT_DESK = { dpl: 'vol.html', mm: 'mm.html', lob: 'lob.html', sa: 'pairs.html' };
+window.PROJECT_ORDER = ['dpl', 'mm', 'lob', 'sa'];

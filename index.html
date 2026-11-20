@@ -4,337 +4,104 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mrityunjay Balkrishnan · Quant Research</title>
-<meta name="description" content="Mrityunjay Balkrishnan: Master of Financial Engineering candidate at UC Berkeley Haas. Derivatives, volatility modeling, market microstructure and systematic research, with live in-browser demos of each project.">
+<meta name="description" content="Mrityunjay Balkrishnan: Master of Financial Engineering candidate at UC Berkeley Haas. Interactive desks for SABR volatility, market making, order-book microstructure and pairs trading, each backed by tested code.">
 <meta property="og:title" content="Mrityunjay Balkrishnan · Quant Research">
-<meta property="og:description" content="Berkeley MFE candidate. Interactive demos: option pricer and SABR smile, price–time order book, Avellaneda–Stoikov market making, walk-forward pairs trading.">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://mj2603.github.io/">
-<meta name="theme-color" content="#0b1d33">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23003262'/%3E%3Cpath d='M7 22V10l5 7 5-7v12M21 10v9a3 3 0 0 0 4 3' stroke='%23FDB515' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/site.css">
-<script>
-  // Apply saved theme before paint
-  try { const t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
-</script>
+<meta property="og:description" content="Berkeley MFE candidate. Four interactive research desks, each backed by verified code: volatility, market making, order book, pairs.">
+<meta property="og:type" content="website"><meta property="og:url" content="https://mj2603.github.io/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23111418'/%3E%3Cpath d='M7 22V10l5 7 5-7v12M21 10v9a3 3 0 0 0 4 3' stroke='%23ffffff' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/desk.css">
+<script>try{const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
-
-<header class="nav">
-  <div class="wrap nav-inner">
-    <a class="brand" href="#top" aria-label="Home">MB<span>.</span></a>
-    <nav aria-label="Primary">
-      <a href="#lab">Lab</a>
-      <a href="#projects">Projects</a>
-      <a href="#experience">Experience</a>
-      <a href="#about" class="hide-sm">About</a>
-      <a class="btn btn-sm" href="resume.pdf" target="_blank" rel="noopener">Résumé</a>
-      <button class="theme" id="theme" type="button" aria-label="Toggle dark mode">◐</button>
-    </nav>
-  </div>
+<header class="top">
+  <a class="brand" href="index.html">Mrityunjay Balkrishnan<span>Berkeley MFE</span></a>
+  <nav class="desks" aria-label="Site">
+    <a href="index.html" aria-current="page">Overview</a><a href="vol.html">Volatility</a><a href="mm.html">Market making</a><a href="lob.html">Order book</a><a href="pairs.html">Pairs</a><a href="#experience">Experience</a>
+  </nav>
+  <a class="btn ghost" href="resume.pdf" target="_blank" rel="noopener" style="padding:6px 12px">Résumé</a>
+  <button class="iconbtn" id="theme" aria-label="Toggle dark mode" title="Theme">◐</button>
 </header>
 
-<main id="main">
-<section class="hero wrap" id="top">
-  <p class="eyebrow">Master of Financial Engineering · UC Berkeley Haas · Jan 2028</p>
-  <h1>Mrityunjay Balkrishnan</h1>
-  <p class="lede">I build and test models for derivatives pricing, volatility surfaces and market microstructure, from SABR calibration on commodity options to C++ order books and execution research.</p>
-  <p class="seeking"><span class="dot" aria-hidden="true"></span>Seeking Summer 2027 internships in quantitative research and trading.</p>
-  <div class="cta">
-    <a class="btn" href="#lab">Try the live demos</a>
-    <a class="btn btn-ghost" href="resume.pdf" target="_blank" rel="noopener">Résumé (PDF)</a>
-    <a class="btn btn-ghost" href="https://github.com/Mj2603" target="_blank" rel="noopener">GitHub</a>
-    <a class="btn btn-ghost" href="https://www.linkedin.com/in/mj2603/" target="_blank" rel="noopener">LinkedIn</a>
-  </div>
-  <dl class="stats">
-    <div><dt>0.25</dt><dd>vol-pt median IV error, SABR / local-vol calibration across 20+ commodity surfaces</dd></div>
-    <div><dt>1.2 bps</dt><dd>realized execution edge improvement across 800 live fills</dd></div>
-    <div><dt>AIR 26</dt><dd>Dr. C.R. Rao National Statistics Olympiad</dd></div>
-    <div><dt>AIR 48</dt><dd>KVPY Fellowship, Govt. of India</dd></div>
-  </dl>
-</section>
-
-<!-- ================= LAB ================= -->
-<section class="band" id="lab">
-<div class="wrap">
-  <header class="sec-head">
-    <p class="kicker">Interactive lab</p>
-    <h2>Each project, running in your browser</h2>
-    <p>These are compact JavaScript versions of the models in my repositories. They are seeded, so you can reproduce every result, and each one links to the code it mirrors. <a href="assets/lab.js" target="_blank" rel="noopener">View the demo source</a>.</p>
-  </header>
-
-  <div class="tabs" role="tablist" aria-label="Demos">
-    <button role="tab" aria-selected="true" aria-controls="p-pricer" id="t-pricer">Option pricer &amp; SABR</button>
-    <button role="tab" aria-selected="false" aria-controls="p-lob" id="t-lob">Order book</button>
-    <button role="tab" aria-selected="false" aria-controls="p-mm" id="t-mm">Market making</button>
-    <button role="tab" aria-selected="false" aria-controls="p-pairs" id="t-pairs">Pairs trading</button>
-  </div>
-
-  <!-- Pricer -->
-  <article class="panel" role="tabpanel" id="p-pricer" aria-labelledby="t-pricer">
-    <div class="grid2">
-      <div class="card">
-        <h3>Black–Scholes pricer &amp; Greeks</h3>
-        <div class="seg" role="group" aria-label="Option type">
-          <button data-cp="call" aria-pressed="true">Call</button><button data-cp="put" aria-pressed="false">Put</button>
-        </div>
-        <div class="ctrls">
-          <label>Spot <output data-out="bs-S">100</output><input type="range" id="bs-S" min="50" max="150" step="1" value="100"></label>
-          <label>Strike <output data-out="bs-K">100</output><input type="range" id="bs-K" min="50" max="150" step="1" value="100"></label>
-          <label>Maturity (y) <output data-out="bs-T">0.5</output><input type="range" id="bs-T" min="0.05" max="3" step="0.05" value="0.5"></label>
-          <label>Rate (%) <output data-out="bs-r">4</output><input type="range" id="bs-r" min="0" max="10" step="0.25" value="4"></label>
-          <label>Vol (%) <output data-out="bs-sig">25</output><input type="range" id="bs-sig" min="5" max="100" step="1" value="25"></label>
-        </div>
-        <dl class="kv">
-          <div><dt>Price</dt><dd id="bs-price">—</dd></div>
-          <div><dt>Δ Delta</dt><dd id="bs-delta">—</dd></div>
-          <div><dt>Γ Gamma</dt><dd id="bs-gamma">—</dd></div>
-          <div><dt>ν Vega /vol-pt</dt><dd id="bs-vega">—</dd></div>
-          <div><dt>Θ Theta /day</dt><dd id="bs-theta">—</dd></div>
-          <div><dt>ρ Rho /1%</dt><dd id="bs-rho">—</dd></div>
-        </dl>
-        <p class="note">Put–call parity residual: <code id="bs-parity">—</code></p>
-      </div>
-      <div class="card">
-        <h3>Value vs. spot</h3>
-        <canvas id="bs-chart" class="cv" role="img" aria-label="Option value and payoff versus spot"></canvas>
-        <p class="legend"><i class="sw acc"></i>Option value <i class="sw mut"></i>Payoff at expiry <i class="sw dash"></i>Current spot</p>
-      </div>
-    </div>
-    <div class="grid2">
-      <div class="card">
-        <h3>SABR implied-vol smile (Hagan 2002)</h3>
-        <div class="ctrls">
-          <label>α (ATM-vol units) <output data-out="sb-a">0.25</output><input type="range" id="sb-a" min="0.05" max="0.8" step="0.01" value="0.25"></label>
-          <label>β <output data-out="sb-b">0.5</output><input type="range" id="sb-b" min="0" max="1" step="0.05" value="0.5"></label>
-          <label>ρ <output data-out="sb-rho">-0.3</output><input type="range" id="sb-rho" min="-0.95" max="0.95" step="0.05" value="-0.3"></label>
-          <label>ν vol-of-vol <output data-out="sb-nu">0.6</output><input type="range" id="sb-nu" min="0" max="2" step="0.05" value="0.6"></label>
-          <label>Expiry (y) <output data-out="sb-T">1</output><input type="range" id="sb-T" min="0.1" max="5" step="0.1" value="1"></label>
-        </div>
-        <dl class="kv kv2">
-          <div><dt>ATM vol</dt><dd id="sb-atm">—</dd></div>
-          <div><dt>90–110 skew</dt><dd id="sb-skew">—</dd></div>
-        </dl>
-        <p class="note">ρ tilts the smile and ν curves it. This is the model I calibrated across exchange-traded commodity option surfaces at Deloitte.</p>
-      </div>
-      <div class="card">
-        <h3>Smile across strikes (F = 100)</h3>
-        <canvas id="sb-chart" class="cv" role="img" aria-label="SABR implied volatility by strike"></canvas>
-      </div>
-    </div>
-    <p class="backed">Mirrors <a href="https://github.com/Mj2603/Derivatives-Pricing-Library-C-" target="_blank" rel="noopener">Derivatives-Pricing-Library-C-</a> <span id="ev-dpl" class="ev"></span></p>
-  </article>
-
-  <!-- LOB -->
-  <article class="panel" role="tabpanel" id="p-lob" aria-labelledby="t-lob" hidden>
-    <div class="grid2 lob">
-      <div class="card">
-        <h3>Price–time priority book</h3>
-        <div id="lob-ladder" class="ladder" aria-live="polite"></div>
-        <p class="note">Each chip is a resting order (#id·qty), shown in FIFO queue order at its price level.</p>
-      </div>
-      <div class="card">
-        <h3>Send an order</h3>
-        <form id="lob-form" class="lobf">
-          <label>Side<select id="lob-side"><option value="B">Buy</option><option value="S">Sell</option></select></label>
-          <label>Type<select id="lob-type"><option value="L">Limit</option><option value="M">Market</option></select></label>
-          <label>Price<input id="lob-px" type="number" step="0.01" value="100.04" inputmode="decimal"></label>
-          <label>Qty<input id="lob-qty" type="number" step="1" min="1" value="150" inputmode="numeric"></label>
-          <button class="btn btn-sm" type="submit">Submit</button>
-        </form>
-        <div class="lobf">
-          <label>Cancel order #<input id="lob-cid" type="number" min="1" value="3"></label>
-          <button class="btn btn-sm btn-ghost" type="button" id="lob-cancel">Cancel</button>
-        </div>
-        <p id="lob-msg" class="msg" role="status"></p>
-        <div class="row-btns">
-          <button class="btn btn-sm" id="lob-auto" type="button">Stream random flow</button>
-          <button class="btn btn-sm btn-ghost" id="lob-reset" type="button">Reset</button>
-          <span class="muted small">events: <b id="lob-events">0</b></span>
-        </div>
-        <h4>Trade tape</h4>
-        <ul id="lob-tape" class="tape"></ul>
-      </div>
-    </div>
-    <p class="backed">Mirrors <a href="https://github.com/Mj2603/LowLatencyLOBEngine" target="_blank" rel="noopener">LowLatencyLOBEngine</a> (C++17): integer-tick levels, FIFO queues, partial fills, cancel by id. <span id="ev-lob" class="ev"></span></p>
-  </article>
-
-  <!-- MM -->
-  <article class="panel" role="tabpanel" id="p-mm" aria-labelledby="t-mm" hidden>
-    <div class="grid2">
-      <div class="card">
-        <h3>Avellaneda–Stoikov vs. fixed spread</h3>
-        <p class="small muted">Mid follows a Brownian motion, and fills arrive as Poisson events with intensity A·e<sup>−kδ</sup>. Both strategies see the same random paths, and the fixed spread is set to A–S's average quoted spread, so the only difference is the inventory skew.</p>
-        <div class="ctrls">
-          <label>Risk aversion γ <output data-out="mm-gamma">0.1</output><input type="range" id="mm-gamma" min="0.01" max="1" step="0.01" value="0.1"></label>
-          <label>Volatility σ <output data-out="mm-sig">2</output><input type="range" id="mm-sig" min="0.5" max="5" step="0.1" value="2"></label>
-          <label>Order-book decay k <output data-out="mm-k">1.5</output><input type="range" id="mm-k" min="0.3" max="5" step="0.1" value="1.5"></label>
-          <label>Paths<select id="mm-n"><option>200</option><option selected>500</option><option>1000</option></select></label>
-        </div>
-        <button class="btn btn-sm" id="mm-run" type="button">Run simulation</button>
-        <table class="tbl">
-          <thead><tr><th></th><th>A–S</th><th>Fixed</th></tr></thead>
-          <tbody>
-            <tr><td>Mean P&amp;L</td><td id="mm-as-mean"></td><td id="mm-fx-mean"></td></tr>
-            <tr><td>Std P&amp;L</td><td id="mm-as-std"></td><td id="mm-fx-std"></td></tr>
-            <tr><td>Mean / Std</td><td id="mm-as-sr"></td><td id="mm-fx-sr"></td></tr>
-            <tr><td>|Terminal inventory|</td><td id="mm-as-q"></td><td id="mm-fx-q"></td></tr>
-          </tbody>
-        </table>
-        <p class="note">Matched half-spread: <code id="mm-half"></code>. Expect the textbook result: similar mean P&amp;L, much lower variance and inventory for A–S.</p>
-      </div>
-      <div class="card">
-        <h3>Terminal P&amp;L distribution</h3>
-        <canvas id="mm-hist" class="cv" role="img" aria-label="P&L histograms"></canvas>
-        <p class="legend"><i class="sw acc"></i>Avellaneda–Stoikov <i class="sw mut"></i>Fixed spread</p>
-        <h3>One path: mid, reservation price, quotes</h3>
-        <canvas id="mm-path" class="cv cv-s" role="img" aria-label="Quotes along one path"></canvas>
-        <p class="legend"><i class="sw ink"></i>Mid <i class="sw acc"></i>Reservation <i class="sw up"></i>Bid <i class="sw dn"></i>Ask</p>
-        <canvas id="mm-inv" class="cv cv-xs" role="img" aria-label="Inventory along one path"></canvas>
-        <p class="legend"><i class="sw acc"></i>Inventory</p>
-      </div>
-    </div>
-    <p class="backed">Mirrors <a href="https://github.com/Mj2603/Options-Market-Making-Simulator-" target="_blank" rel="noopener">Options-Market-Making-Simulator-</a> <span id="ev-mm" class="ev"></span></p>
-  </article>
-
-  <!-- Pairs -->
-  <article class="panel" role="tabpanel" id="p-pairs" aria-labelledby="t-pairs" hidden>
-    <div class="grid2">
-      <div class="card">
-        <h3>Engle–Granger pairs, walk-forward</h3>
-        <p class="small muted">The data is a synthetic cointegrated pair. Every quarter the model re-estimates the OLS hedge ratio on the trailing year and runs an ADF test on the residual, then trades the next quarter out of sample, but only if the pair passes at 5%. The rules match the repo: enter at |z| ≥ threshold, exit when z crosses 0, 20-day rolling z-score, and costs charged per unit change in position. One deliberate difference: the z-score uses the trailing 20 days across window boundaries, so the first days of each test window can trade.</p>
-        <div class="ctrls">
-          <label>Mean reversion κ (/day) <output data-out="pa-kappa">0.05</output><input type="range" id="pa-kappa" min="0.005" max="0.2" step="0.005" value="0.05"></label>
-          <label>Entry |z| <output data-out="pa-entry">2</output><input type="range" id="pa-entry" min="1" max="3" step="0.1" value="2"></label>
-          <label>Cost (bps per unit turnover) <output data-out="pa-cost">10</output><input type="range" id="pa-cost" min="0" max="30" step="1" value="10"></label>
-          <label>Seed<input type="number" id="pa-seed" value="1" min="1"></label>
-        </div>
-        <button class="btn btn-sm" id="pa-run" type="button">Run backtest</button>
-        <dl class="kv">
-          <div><dt>OOS Sharpe</dt><dd id="pa-sr"></dd></div>
-          <div><dt>CAGR</dt><dd id="pa-cagr"></dd></div>
-          <div><dt>Max drawdown</dt><dd id="pa-mdd"></dd></div>
-          <div><dt>OOS years</dt><dd id="pa-years"></dd></div>
-          <div><dt>Mean ADF t</dt><dd id="pa-adf"></dd></div>
-        </dl>
-        <p class="note">Try κ → 0.005: the pair stops passing cointegration tests and the strategy correctly stays flat.</p>
-      </div>
-      <div class="card">
-        <h3>Spread z-score (out of sample)</h3>
-        <canvas id="pa-z" class="cv cv-s" role="img" aria-label="Spread z-score"></canvas>
-        <h3>Equity curve, net of costs</h3>
-        <canvas id="pa-eq" class="cv cv-s" role="img" aria-label="Equity curve"></canvas>
-      </div>
-    </div>
-    <p class="backed">Mirrors <a href="https://github.com/Mj2603/Statistical-Arbitrage-Research-" target="_blank" rel="noopener">Statistical-Arbitrage-Research-</a> <span id="ev-sa" class="ev"></span></p>
-  </article>
-</div>
-</section>
-
-<!-- ================= PROJECTS ================= -->
-<section class="wrap" id="projects">
-  <header class="sec-head">
-    <p class="kicker">Projects</p>
-    <h2>Code, claims and how to reproduce them</h2>
-    <p>Every number below links to a benchmark or test in the repo. Where a result depends on hardware or a synthetic workload, I say so.</p>
-  </header>
-  <div class="projects" id="project-list"><!-- filled from assets/projects.js --></div>
-</section>
-
-<!-- ================= EXPERIENCE ================= -->
-<section class="band" id="experience">
-<div class="wrap">
-  <header class="sec-head"><p class="kicker">Experience</p><h2>Where I've done this for real</h2></header>
-  <ol class="timeline">
-    <li>
-      <div class="when">01/2026 – 08/2026</div>
-      <div>
-        <h3>Deloitte · Strategy, Risk &amp; Transactions <span class="muted">· Hyderabad</span></h3>
-        <p class="role">Assistant Manager, Front Office Quant</p>
-        <ul>
-          <li>Calibrated SABR and local-volatility models across 20+ exchange-traded commodity option surfaces and 6 maturities: 0.25 vol-pt median IV error, 95% convergence.</li>
-          <li>Researched relative-value signals across 14 commodity calendars and NYMEX/ICE crack spreads, and presented them to a US institutional client's trading desk.</li>
-          <li>Built Python libraries for forward-curve construction and calendar-spread valuation, and applied PCA, cointegration and GARCH to find regime-dependent risk premia.</li>
-        </ul>
-      </div>
-    </li>
-    <li>
-      <div class="when">07/2025 – 01/2026</div>
-      <div>
-        <h3>Algoritt Consulting <span class="muted">· Gurgaon</span></h3>
-        <p class="role">Senior Quantitative Analyst</p>
-        <ul>
-          <li>Built a walk-forward research pipeline over 2M+ SPX/NDX option quotes across 12 expiries, cutting backtest run time by 60%+.</li>
-          <li>Developed volatility-carry, skew and term-structure signals: 1.2 out-of-sample Sharpe and 55% directional accuracy across volatility regimes.</li>
-        </ul>
-      </div>
-    </li>
-    <li>
-      <div class="when">11/2024 – 05/2025</div>
-      <div>
-        <h3>Pro-Alpha Capital <span class="muted">· Mumbai</span></h3>
-        <p class="role">Quant Intern, Trading Research</p>
-        <ul>
-          <li>Researched 4 limit-order-book signal families (order-flow imbalance, queue position, depth asymmetry, micro-price skew) across 6 instruments and 80 sessions. The best signal added 0.3 bps per trade of net edge.</li>
-          <li>Improved realized execution edge by 1.2 bps across 800 fills through queue-position and adverse-selection analysis. Built event-driven C++ market-making simulators.</li>
-        </ul>
-      </div>
-    </li>
-  </ol>
-</div>
-</section>
-
-<!-- ================= ABOUT ================= -->
-<section class="wrap" id="about">
-  <div class="grid2 about">
+<main id="main" class="wrap">
+  <section class="hero">
     <div>
-      <header class="sec-head"><p class="kicker">About</p><h2>Background</h2></header>
-      <p>I trained as a chemical engineer at Jadavpur University (First Class Honours with distinction), where I first used numerical modeling and optimization in practice. Since then I've moved to markets: options and volatility, microstructure, and the research infrastructure that makes backtests trustworthy.</p>
-      <p>I'm now in the Master of Financial Engineering program at UC Berkeley Haas.</p>
-      <h3>Toolkit</h3>
-      <p class="tags"><span>Python</span><span>C++17</span><span>NumPy / Pandas</span><span>SQL</span><span>PyTorch</span><span>R</span><span>MATLAB</span><span>Git</span><span>Bloomberg</span></p>
-      <p class="tags"><span>Stochastic calculus</span><span>Probability</span><span>Time-series econometrics</span><span>Optimization</span><span>Monte Carlo</span></p>
+      <p class="eyebrow">Master of Financial Engineering · UC Berkeley Haas · Jan 2028</p>
+      <h1>Derivatives, microstructure and systematic research, built and tested.</h1>
+      <p class="lede">I'm Mrityunjay Balkrishnan. I've calibrated SABR and local-vol surfaces for a commodity trading desk, researched order-book signals at a prop firm, and built the C++ and Python tooling behind that work. Each desk below runs one of my repositories in your browser.</p>
+      <p class="seek"><span class="dot" aria-hidden="true"></span>Seeking Summer 2027 internships in quantitative research and trading.</p>
+      <div class="cta">
+        <a class="btn" href="#desks">Explore the desks</a>
+        <a class="btn ghost" href="resume.pdf" target="_blank" rel="noopener">Résumé</a>
+        <a class="btn ghost" href="https://github.com/Mj2603" target="_blank" rel="noopener">GitHub</a>
+        <a class="btn ghost" href="https://www.linkedin.com/in/mj2603/" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
     </div>
-    <div>
-      <h3>Honors &amp; publications</h3>
-      <ul class="plain">
-        <li><b>AIR 26</b>, Dr. C.R. Rao National Statistics Olympiad (C.R. Rao AIMSCS), 2016</li>
-        <li><b>KVPY Fellowship</b>, All India Rank 48, 2018</li>
-        <li>Published 2 books and a research paper on neural-network-based heat-sink optimization (ISBN 978-1638321408), 2021</li>
-        <li>Developed a trainable conditional-HMM method for speaker diarization (<a href="https://github.com/Mj2603/chmm-speaker-diarization" target="_blank" rel="noopener">code</a>), 2025</li>
-      </ul>
-      <h3>Certifications</h3>
-      <ul class="plain">
-        <li>Akuna Capital Options 201, 2026</li>
-        <li>Executive Programme in Algorithmic Trading (QuantInsti EPAT), 2025</li>
-        <li>Applied Data Science &amp; Machine Learning, IIT Madras, 2024</li>
-      </ul>
+    <div class="panel surfcard">
+      <canvas class="surf" id="hero-surf" role="img" aria-label="Rotating 3D SABR implied volatility surface"></canvas>
+      <div class="lbl"><b>SABR implied-vol surface</b><br>β 0.5 · ρ −0.35 · ν 0.6</div>
+      <div class="hint">drag to rotate · <a href="vol.html">open the volatility desk →</a></div>
     </div>
-  </div>
-</section>
+  </section>
 
-<section class="band contact" id="contact">
-  <div class="wrap">
-    <h2>Let's talk</h2>
-    <p>I'm open to Summer 2027 quantitative research and trading internships.</p>
-    <div class="cta">
-      <a class="btn" href="mailto:mj2603@berkeley.edu">mj2603@berkeley.edu</a>
-      <a class="btn btn-ghost" href="https://www.linkedin.com/in/mj2603/" target="_blank" rel="noopener">LinkedIn</a>
-      <a class="btn btn-ghost" href="https://github.com/Mj2603" target="_blank" rel="noopener">GitHub</a>
-    </div>
+  <div class="statrow" aria-label="Highlights">
+    <div><b>0.25 vol-pt</b><span>median IV error, SABR/local-vol across 20+ commodity surfaces</span></div>
+    <div><b>1.2 bps</b><span>realized execution edge improvement over 800 live fills</span></div>
+    <div><b>~10M ev/s</b><span>C++ order book, 0.5 µs p99, differentially tested</span></div>
+    <div><b>AIR 26 · AIR 48</b><span>National Statistics Olympiad · KVPY Fellowship</span></div>
   </div>
-</section>
+
+  <section class="sec" id="desks">
+    <div class="sh"><p class="k">Interactive desks</p><h2>Four projects, each with its own trading-desk interface</h2>
+      <p>Each desk ports the model from one of my repositories. You can change parameters, run the Monte Carlo, and read the results the way a desk would: paired comparisons, standard errors and honest baselines. Every number in the cards is reproduced from the repository's tests or committed results.</p></div>
+    <div class="deskgrid" id="desk-cards"></div>
+  </section>
+
+  <section class="sec" id="experience">
+    <div class="sh"><p class="k">Experience</p><h2>Where I've done this for real</h2></div>
+    <ol class="tl">
+      <li><div class="when">01/2026 – 08/2026</div><div>
+        <h3>Deloitte · Strategy, Risk &amp; Transactions <span class="muted">· Hyderabad</span></h3><p class="role">Assistant Manager, Front Office Quant</p>
+        <ul><li>Calibrated SABR and local-volatility models across 20+ exchange-traded commodity option surfaces and 6 maturities: 0.25 vol-pt median IV error, 95% convergence.</li>
+        <li>Researched relative-value signals across 14 commodity calendars and NYMEX/ICE crack spreads, and presented them to a US institutional client's trading desk.</li>
+        <li>Built Python libraries for forward-curve construction and calendar-spread valuation, and applied PCA, cointegration and GARCH to find regime-dependent risk premia.</li></ul></div></li>
+      <li><div class="when">07/2025 – 01/2026</div><div>
+        <h3>Algoritt Consulting <span class="muted">· Gurgaon</span></h3><p class="role">Senior Quantitative Analyst</p>
+        <ul><li>Built a walk-forward research pipeline over 2M+ SPX/NDX option quotes across 12 expiries, cutting backtest run time by 60%+.</li>
+        <li>Developed volatility-carry, skew and term-structure signals: 1.2 out-of-sample Sharpe and 55% directional accuracy across volatility regimes.</li></ul></div></li>
+      <li><div class="when">11/2024 – 05/2025</div><div>
+        <h3>Pro-Alpha Capital <span class="muted">· Mumbai</span></h3><p class="role">Quant Intern, Trading Research</p>
+        <ul><li>Researched 4 limit-order-book signal families (order-flow imbalance, queue position, depth asymmetry, micro-price skew) across 6 instruments and 80 sessions. The best signal added 0.3 bps per trade of net edge.</li>
+        <li>Improved realized execution edge by 1.2 bps across 800 fills through queue-position and adverse-selection analysis. Built event-driven C++ market-making simulators.</li></ul></div></li>
+    </ol>
+  </section>
+
+  <section class="sec" id="about">
+    <div class="two">
+      <div><div class="sh" style="margin-bottom:10px"><p class="k">About</p><h2>Background</h2></div>
+        <p style="color:var(--ink2)">I trained as a chemical engineer at Jadavpur University (First Class Honours with distinction), where I first used numerical modeling and optimization in practice. Since then I've moved to markets: options and volatility, microstructure, and the research infrastructure that makes backtests trustworthy. I'm now in the Master of Financial Engineering program at UC Berkeley Haas.</p>
+        <div class="tags"><span>Python</span><span>C++17</span><span>NumPy / Pandas</span><span>SQL</span><span>PyTorch</span><span>R</span><span>MATLAB</span><span>Git</span><span>Bloomberg</span></div>
+        <div class="tags"><span>Stochastic calculus</span><span>Probability</span><span>Time-series econometrics</span><span>Optimization</span><span>Monte Carlo</span></div></div>
+      <div><h3 style="margin-top:6px">Honors &amp; publications</h3>
+        <ul class="plain"><li><b>AIR 26</b>, Dr. C.R. Rao National Statistics Olympiad (C.R. Rao AIMSCS), 2016</li><li><b>KVPY Fellowship</b>, All India Rank 48, 2018</li>
+          <li>Published 2 books and a research paper on neural-network-based heat-sink optimization (ISBN 978-1638321408), 2021</li>
+          <li>Conditional hidden Markov model decoder prototype for speaker diarization (<a href="https://github.com/Mj2603/chmm-speaker-diarization" target="_blank" rel="noopener">code</a>), 2025</li></ul>
+        <h3>Certifications</h3>
+        <ul class="plain"><li>Akuna Capital Options 201, 2026</li><li>Executive Programme in Algorithmic Trading (QuantInsti EPAT), 2025</li><li>Applied Data Science &amp; Machine Learning, IIT Madras, 2024</li></ul></div>
+    </div>
+  </section>
+
+  <section class="sec contact" id="contact">
+    <h2 style="font-size:28px;margin-bottom:8px">Let's talk</h2>
+    <p class="muted" style="margin:0 0 18px">I'm open to Summer 2027 quantitative research and trading internships.</p>
+    <div class="cta"><a class="btn" href="mailto:mj2603@berkeley.edu">mj2603@berkeley.edu</a><a class="btn ghost" href="https://www.linkedin.com/in/mj2603/" target="_blank" rel="noopener">LinkedIn</a><a class="btn ghost" href="https://github.com/Mj2603" target="_blank" rel="noopener">GitHub</a></div>
+  </section>
+  <footer class="foot"><span>© 2026 Mrityunjay Balkrishnan · Berkeley, CA</span><span>Plain HTML, CSS and JavaScript. Every desk computes in your browser.</span></footer>
 </main>
-
-<footer class="wrap foot">
-  <p>© 2026 Mrityunjay Balkrishnan · Berkeley, CA · Built with plain HTML, CSS and JavaScript.</p>
-</footer>
-
+<script src="assets/core.js"></script>
 <script src="assets/projects.js"></script>
-<script src="assets/lab.js"></script>
-<script src="assets/ui.js"></script>
+<script src="assets/home.js"></script>
 </body>
 </html>
