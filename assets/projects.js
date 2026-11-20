@@ -29,9 +29,10 @@ window.PROJECTS = [
     claims: [
       ['ok', 'Event-driven trade-print replay: each print fills against the quote left resting by the previous event, with participation caps, inventory limits and commission-aware average-cost P&L. 113 tests pass.'],
       ['ok', 'Avellaneda–Stoikov quoting with k fitted by Poisson maximum likelihood on the training window, compared with a fixed spread in expanding-window walk-forward folds.'],
-      ['part', 'Synthetic walk-forward, 20 seeds: A–S cut peak inventory 2–5×. Net P&L was +1–4% on average, but it lost on 8 of 20 seeds, so I report the inventory-risk result and not a P&L edge. A real-data run (Alpaca options prints) is next.'],
+      ['ok', 'Synthetic walk-forward, 20 seeds per scenario (results committed): with random-walk and informed flow, A–S matches a tuned fixed spread on net P&L (95% CI includes 0), with 26–35% lower P&L dispersion and 22–24% lower peak inventory.'],
+      ['part', 'With trending markets, A–S wins 19 of 20 seeds (+85% net P&L), mostly because the tuned fixed spread goes very wide. Its peak inventory is higher there. Real-data replay (options trade prints) is next.'],
     ],
-    repro: 'pip install -r requirements.txt && pytest\npython scripts/run_synthetic_backtest.py',
+    repro: 'pip install -r requirements.txt && pytest\npython scripts/run_synthetic_experiment.py   # writes results/synthetic_walkforward.md',
     demo: 'mm',
   },
   {
