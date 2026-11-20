@@ -39,11 +39,11 @@ window.PROJECTS = [
     id: 'sa', name: 'Statistical Arbitrage Research', repo: 'Statistical-Arbitrage-Research-', stack: 'Python · statsmodels · pytest',
     blurb: 'A pairs-research pipeline: Engle–Granger and Johansen screening, OLS hedge ratios fit per training window, z-score signals, transaction costs and walk-forward out-of-sample evaluation.',
     claims: [
-      ['ok', 'Engle–Granger screening (p ≤ 0.05), OLS hedge ratio fit on each 252-day training window only, then traded on the next 63 days out of sample. 20/20 tests pass.'],
-      ['ok', 'Costs: 10 bps per unit change in position. Windows that fail the cointegration test are skipped.'],
-      ['wip', 'Real-data run on NSE banking pairs (HDFC, ICICI, Axis, Kotak) and a published out-of-sample results table, coming next. No performance figure is claimed until it is checked in.'],
+      ['ok', 'Walk-forward with no look-ahead: pair selection, hedge ratios and z-score warm-up use training data only. Regression tests show that changing every future price leaves past trades unchanged. 46 tests pass.'],
+      ['ok', 'Cost-sensitivity study on simulated data (committed): cointegrated pairs give an OOS Sharpe of 1.06 before costs, 0.40 at 5 bps and −0.29 at 10 bps. Random-walk controls pass the Engle–Granger test in only 7% of windows and earn nothing.'],
+      ['wip', 'Real NSE banking-pair results (HDFC/ICICI, 2019 onward) come next. No real-data performance is claimed until those results are committed.'],
     ],
-    repro: 'pip install -r requirements.txt\nPYTHONPATH=. pytest\nPYTHONPATH=. python scripts/run_banking_pairs.py',
+    repro: 'pip install -e ".[dev]" && pytest\npython scripts/run_synthetic_experiment.py   # writes results/synthetic_walkforward.md',
     demo: 'pairs',
   },
 ];
